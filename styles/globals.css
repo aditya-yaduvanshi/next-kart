@@ -3,5 +3,9 @@
 @tailwind utilities;
 
 html, body {
-  @apply bg-white;
+  @apply bg-white h-full;
+}
+
+#__next {
+  @apply h-full;
 }

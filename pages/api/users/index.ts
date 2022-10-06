@@ -6,7 +6,7 @@ import {collection, where, query, getDocs, addDoc} from 'firebase/firestore'
 const postUser = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const body = req.body as IUser;
-		if(body.provider === 'google') {} // skip validating data
+		if(body.provider === 'google.com') {} // skip validating data
 		let snaps = await getDocs(query(collection(db, 'users'), where('uid', '==', body.uid)));
 
 		if(snaps.docs.length) return res.status(400).json({error: 'User already exists!'});

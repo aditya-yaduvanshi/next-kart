@@ -15,7 +15,7 @@ const PrivateRoute = ({Component, redirectTo}: RouteProps) => {
 
 	useLayoutEffect(() => {
 		if (!user && !loading)
-			push('/auth/signin', {query: {redirect: redirect ?? redirectTo}});
+			push('/signin', {query: {redirect: redirect ?? redirectTo}});
 	}, [user, loading]);
 
 	if (loading) return <>loading...</>;

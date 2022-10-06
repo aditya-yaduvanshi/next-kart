@@ -9,7 +9,7 @@ const ProtectedRoute = ({Component, redirectTo}: RouteProps) => {
 	const {push} = useRouter();
 
 	useLayoutEffect(() => {
-		if (!user && !loading) push('/auth/signin');
+		if (!user && !loading) push('/signin');
 		if (user && user.role !== 'admin') push('/');
 	}, [user, loading]);
 

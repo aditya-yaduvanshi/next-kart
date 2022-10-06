@@ -5,11 +5,11 @@ interface NavLinkProps extends LinkProps, PropsWithChildren {
   className?: React.HTMLAttributes<HTMLAnchorElement>['className'];
 }
 
-const NavLink: React.FC<NavLinkProps> = ({className, children, ...rest}) => {
+const NavLink: React.FC<NavLinkProps> = ({className, onClick, children, ...rest}) => {
 	return (
 		<>
 			<Link {...rest}>
-        <a className={className}>{children}</a>
+        <a className={'flex justify-center items-center gap-2 ' + className} onClick={onClick}>{children}</a>
       </Link>
 		</>
 	);

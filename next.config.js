@@ -11,6 +11,9 @@ const nextConfig = {
 		appId: `${process.env.APP_ID}`,
 		measurementId: `${process.env.MEASUREMENT_ID}`,
 	},
+	images: {
+    domains: ['lh3.googleusercontent.com'],
+  },
 };
 
 module.exports = nextConfig;

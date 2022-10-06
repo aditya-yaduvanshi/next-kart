@@ -3,9 +3,11 @@ import Img from 'hoc/img';
 import NavLink from 'hoc/nav-link';
 import React from 'react';
 import styles from './nav.module.css';
-import {FaBars} from 'react-icons/fa';
+import {FaBars, FaShoppingCart, FaSignInAlt, FaSignOutAlt} from 'react-icons/fa';
+import {useAuth} from 'contexts/auth';
 
 const Nav: React.FC = () => {
+	const {user, signout} = useAuth();
 	return (
 		<>
 			<nav className={styles.nav}>
@@ -17,26 +19,56 @@ const Nav: React.FC = () => {
 						<Img src='/nextkart.png' alt='cart-icon' width='125' height='30' />
 					</NavLink>
 				</div>
-				<form className='w-full md:w-1/3'>
+				<form className='w-full md:w-1/3' onSubmit={(e) => e.preventDefault()}>
 					<Input
 						placeholder='Search for product, category, brand and more'
 						className=''
 					/>
 				</form>
 				<ul className='flex gap-2'>
-					<li>
-						<NavLink href='/auth/signin' className='px-2 py-1'>
-							Sign In
-						</NavLink>
-					</li>
-					<li>
-						<NavLink href='/auth/register' className='px-2 py-1'>
-							Register
-						</NavLink>
-					</li>
-					<li>
-						<NavLink href='/cart' className='px-2 py-1'>
-							Cart
+					{user ? (
+						<>
+							<li className='flex justify-center items-center'>
+								<NavLink
+									href='#'
+									className='px-2 py-1 hover:bg-zinc-500 rounded'
+								>
+									<span>{user.name}</span>
+									<Img
+										src={user.avatar as string}
+										alt='avatar'
+										width='25'
+										height='25'
+										className='rounded-full overflow-hidden'
+									/>
+								</NavLink>
+							</li>
+							<li className='flex justify-center items-center'>
+								<NavLink
+									href='#!'
+									onClick={() => signout()}
+									className='px-2 py-1 hover:bg-zinc-500 rounded'
+								>
+									Sign Out <FaSignOutAlt size="16" />
+								</NavLink>
+							</li>
+						</>
+					) : (
+						<li className='flex justify-center items-center'>
+							<NavLink
+								href='/signin'
+								className='px-2 py-1 hover:bg-zinc-500 rounded'
+							>
+								Sign In <FaSignInAlt size="16" />
+							</NavLink>
+						</li>
+					)}
+					<li className='flex justify-center items-center'>
+						<NavLink
+							href='/cart'
+							className='px-2 py-1 hover:bg-zinc-500 rounded'
+						>
+							Cart <FaShoppingCart size='16' />
 						</NavLink>
 					</li>
 				</ul>

@@ -1,5 +1,5 @@
 import {USERS_URL} from 'constants/urls';
-import {AuthProvider, User} from 'firebase/auth';
+import {AuthProvider, User, signOut} from 'firebase/auth';
 import React, {
 	createContext,
 	PropsWithChildren,
@@ -20,7 +20,7 @@ export interface IUser {
 	role?: Role;
 	avatar?: string | null;
 	uid: string;
-	provider: AuthProvider['providerId']; 
+	provider: AuthProvider['providerId'];
 }
 
 export interface IAuthContext {
@@ -30,6 +30,7 @@ export interface IAuthContext {
 	authUser?: User | null;
 	authLoading: boolean;
 	authError?: Error;
+	signout: () => Promise<void>;
 }
 
 // interface IHandleResponse {
@@ -40,6 +41,13 @@ export interface IAuthContext {
 // const handleResponse = async ({status, handler}: IHandleResponse) => {
 //   return handler[status];
 // }
+
+export const getHeaders = (token: string) => {
+	return {
+		'Content-Type': 'application/json',
+		Authorization: token,
+	};
+};
 
 const AuthContext = createContext<IAuthContext | null>(null);
 
@@ -59,7 +67,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	}, [authError, authLoading]);
 
 	useEffect(() => {
-		if (!authUser || user) return;
+		if (!authUser && !user) return;
 		getUser();
 	}, [authUser, USERS_URL]);
 
@@ -71,9 +79,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 				const res = await fetch(USERS_URL, {
 					method: 'POST',
 					body: JSON.stringify(user),
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers: getHeaders(await authUser.getIdToken()),
 				});
 				switch (res.status) {
 					case 201: {
@@ -104,7 +110,9 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 		if (!authUser) return;
 		try {
 			setLoading(true);
-			const res = await fetch(`${USERS_URL}/${authUser.uid}`);
+			const res = await fetch(`${USERS_URL}/${authUser.uid}`, {
+				headers: getHeaders(await authUser.getIdToken()),
+			});
 			switch (res.status) {
 				case 200: {
 					let result = await res.json();
@@ -133,11 +141,10 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 						avatar: authUser.photoURL,
 						uid: authUser.uid,
 						role: 'customer',
-						provider: authUser.providerId,
+						provider: authUser.providerData[0].providerId,
 					};
 					await createUser(userData);
-					if(!error) 
-						setUser(userData);
+					if (!error) setUser(userData);
 					return;
 				}
 				default: {
@@ -152,6 +159,11 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 		}
 	}, [authUser, createUser]);
 
+	const signout = useCallback(async () => {
+		await signOut(auth);
+		setUser(null);
+	}, []);
+
 	return (
 		<>
 			<AuthContext.Provider
@@ -162,6 +174,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 					authUser: authUser ? {...authUser} : authUser,
 					authLoading,
 					authError,
+					signout
 				}}
 			>
 				{children}
