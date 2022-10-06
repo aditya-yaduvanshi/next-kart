@@ -1,0 +1,15 @@
+.section {
+  @apply h-full flex justify-center items-center;
+}
+
+.div {
+  @apply p-32 rounded border border-slate-500 bg-zinc-100;
+}
+
+.h1 {
+  @apply text-xl uppercase text-center;
+}
+
+.button {
+  @apply bg-red-500 flex justify-center items-center mt-5 p-2 gap-2 text-white rounded hover:shadow-lg;
+}

@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  @apply bg-white h-full;
+html, body, #__next {
+  @apply bg-white h-screen w-screen;
 }
 
 #__next {
-  @apply h-full;
+  @apply text-black;
 }

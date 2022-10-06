@@ -12,7 +12,7 @@ const nextConfig = {
 		measurementId: `${process.env.MEASUREMENT_ID}`,
 	},
 	images: {
-    domains: ['lh3.googleusercontent.com'],
+    domains: ['lh3.googleusercontent.com', 'fakestoreapi.com'],
   },
 };
 

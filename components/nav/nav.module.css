@@ -2,13 +2,38 @@
   @apply p-5 py-2 shadow-lg relative;
   @apply flex justify-between items-center;
   @apply bg-zinc-600 text-white;
-  @apply sticky top-0 left-0 right-0;
+  @apply sticky top-0 left-0 right-0 z-50;
 }
 
 .left_container {
   @apply flex justify-center items-center gap-5;
 }
 
-.flex_center {
+.toggle {
   @apply flex justify-center items-center;
+}
+
+.brand {
+  @apply flex justify-between items-center gap-2;
+}
+
+.search_form {
+  @apply w-full md:w-1/3;
+  @apply bg-zinc-600 absolute left-0 right-0 -bottom-12 md:static py-1 px-5 md:p-0;
+}
+
+.nav_links {
+  @apply flex gap-2;
+}
+
+.nav_item {
+  @apply flex justify-center items-center;
+}
+
+.nav_link {
+  @apply px-2 py-1 hover:bg-zinc-500 rounded;
+}
+
+.avatar {
+  @apply rounded-full overflow-hidden;
 }

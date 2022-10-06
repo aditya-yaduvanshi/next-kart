@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/globals.css';
 import type {AppProps} from 'next/app';
-import Layout from 'hoc/layout';
+import Layout from 'components/layout';
 import AuthProvider from 'contexts/auth';
 
 const App = ({Component, pageProps}: AppProps) => {

@@ -1,0 +1,13 @@
+.card {
+  @apply rounded border hover:border-slate-400 shadow-lg;
+  @apply p-2 cursor-pointer;
+  @apply flex flex-col gap-1;
+}
+
+.body {
+  @apply px-2;
+}
+
+.title {
+  @apply font-semibold overflow-ellipsis;
+}

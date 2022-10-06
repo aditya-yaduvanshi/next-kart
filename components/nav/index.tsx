@@ -1,9 +1,14 @@
 import Input from 'components/input';
-import Img from 'hoc/img';
-import NavLink from 'hoc/nav-link';
+import Img from 'components/img';
+import NavLink from 'components/nav-link';
 import React from 'react';
 import styles from './nav.module.css';
-import {FaBars, FaShoppingCart, FaSignInAlt, FaSignOutAlt} from 'react-icons/fa';
+import {
+	FaBars,
+	FaShoppingCart,
+	FaSignInAlt,
+	FaSignOutAlt,
+} from 'react-icons/fa';
 import {useAuth} from 'contexts/auth';
 
 const Nav: React.FC = () => {
@@ -12,62 +17,53 @@ const Nav: React.FC = () => {
 		<>
 			<nav className={styles.nav}>
 				<div className={styles.left_container}>
-					<button className={styles.flex_center}>
+					<button className={styles.toggle}>
 						<FaBars size='28' />
 					</button>
-					<NavLink href='/' className='flex justify-between items-center gap-2'>
+					<NavLink href='/' className={styles.brand}>
 						<Img src='/nextkart.png' alt='cart-icon' width='125' height='30' />
 					</NavLink>
 				</div>
-				<form className='w-full md:w-1/3' onSubmit={(e) => e.preventDefault()}>
-					<Input
-						placeholder='Search for product, category, brand and more'
-						className=''
-					/>
+				<form
+					className={styles.search_form}
+					onSubmit={(e) => e.preventDefault()}
+				>
+					<Input placeholder='Search...' />
 				</form>
-				<ul className='flex gap-2'>
+				<ul className={styles.nav_links}>
 					{user ? (
 						<>
-							<li className='flex justify-center items-center'>
-								<NavLink
-									href='#'
-									className='px-2 py-1 hover:bg-zinc-500 rounded'
-								>
+							<li className={styles.nav_item}>
+								<NavLink href='#' className={styles.nav_link}>
 									<span>{user.name}</span>
 									<Img
 										src={user.avatar as string}
 										alt='avatar'
 										width='25'
 										height='25'
-										className='rounded-full overflow-hidden'
+										className={styles.avatar}
 									/>
 								</NavLink>
 							</li>
-							<li className='flex justify-center items-center'>
+							<li className={styles.nav_item}>
 								<NavLink
 									href='#!'
 									onClick={() => signout()}
-									className='px-2 py-1 hover:bg-zinc-500 rounded'
+									className={styles.nav_link}
 								>
-									Sign Out <FaSignOutAlt size="16" />
+									Sign Out <FaSignOutAlt size='16' />
 								</NavLink>
 							</li>
 						</>
 					) : (
-						<li className='flex justify-center items-center'>
-							<NavLink
-								href='/signin'
-								className='px-2 py-1 hover:bg-zinc-500 rounded'
-							>
-								Sign In <FaSignInAlt size="16" />
+						<li className={styles.nav_item}>
+							<NavLink href='/auth' className={styles.nav_link}>
+								Sign In <FaSignInAlt size='16' />
 							</NavLink>
 						</li>
 					)}
-					<li className='flex justify-center items-center'>
-						<NavLink
-							href='/cart'
-							className='px-2 py-1 hover:bg-zinc-500 rounded'
-						>
+					<li className={styles.nav_item}>
+						<NavLink href='/cart' className={styles.nav_link}>
 							Cart <FaShoppingCart size='16' />
 						</NavLink>
 					</li>

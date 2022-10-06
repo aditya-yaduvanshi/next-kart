@@ -5,8 +5,9 @@ import {auth} from 'utils/firebase';
 import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
 import {FaGoogle} from 'react-icons/fa';
+import styles from './auth.module.css';
 
-const Signin: NextPage = () => {
+const Auth: NextPage = () => {
 	const [googleSignin] = useSignInWithGoogle(auth);
 	const {user} = useAuth();
 	const {push, query} = useRouter();
@@ -19,12 +20,12 @@ const Signin: NextPage = () => {
 
 	return (
 		<>
-			<section className='h-full flex justify-center items-center'>
-				<div className='p-32 rounded border border-slate-500 bg-zinc-100'>
-					<h1 className='text-xl uppercase text-center'>Sign In</h1>
+			<section className={styles.section}>
+				<div className={styles.div}>
+					<h1 className={styles.h1}>Authenticate</h1>
 					<button
 						onClick={() => googleSignin(['email', 'profile'])}
-						className='bg-red-500 flex justify-center items-center mt-5 p-2 gap-2 text-white rounded hover:shadow-lg'
+						className={styles.button}
 					>
 						<FaGoogle size='20' /> <span>Continue With Google</span>
 					</button>
@@ -34,4 +35,4 @@ const Signin: NextPage = () => {
 	);
 };
 
-export default React.memo(Signin);
+export default React.memo(Auth);
