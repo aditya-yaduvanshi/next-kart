@@ -1,15 +1,21 @@
-import Nav from 'components/nav';
-import React, { PropsWithChildren } from 'react';
+import {useAuth} from 'contexts/auth';
+import {NextPage} from 'next';
+import {useRouter} from 'next/router';
+import React, {useLayoutEffect} from 'react';
+import PrivateRoute, {RouteProps} from 'hoc/private-route';
 
-const Layout: React.FC<PropsWithChildren> = ({children}) => {
-	return (
-		<>
-			<Nav />
-			<main>
-				{children}
-			</main>
-		</>
-	);
+const ProtectedRoute = ({Component, redirectTo}: RouteProps) => {
+	const {user, loading} = useAuth();
+	const {push} = useRouter();
+
+	useLayoutEffect(() => {
+		if (!user && !loading) push('/auth/signin');
+		if (user && user.role !== 'admin') push('/');
+	}, [user, loading]);
+
+	if (loading) return <>loading...</>;
+
+	return PrivateRoute({Component, redirectTo});
 };
 
-export default React.memo(Layout);
+export default ProtectedRoute;

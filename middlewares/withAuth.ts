@@ -9,7 +9,7 @@ export interface IRequest extends NextApiRequest {
 	};
 }
 
-const withAuth = async (handler: Function) => {
+const withAuth = (handler: Function) => {
 	return async (req: NextApiRequest, res: NextApiResponse) => {
 		const cookies = parseCookies({req});
 		const token = cookies.token;

@@ -1,19 +1,30 @@
+import { IUser } from 'contexts/auth';
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {db} from 'utils/firebase';
-import {collection, getDocs} from 'firebase/firestore';
-import withAuth, {IRequest} from 'middlewares/withAuth';
+import {collection, where, query, getDocs, addDoc} from 'firebase/firestore'
 
-const handler = async (req: IRequest, res: NextApiResponse) => {
+const postUser = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
-		const {uid, email} = req.user;
-		let usersRef = collection(db, 'users');
-		let snapshot = await getDocs(usersRef);
-		let users = snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
+		const body = req.body as IUser;
+		if(body.provider === 'google') {} // skip validating data
+		let snaps = await getDocs(query(collection(db, 'users'), where('uid', '==', body.uid)));
 
-		return res.status(200).json({users});
+		if(snaps.docs.length) return res.status(400).json({error: 'User already exists!'});
+		await addDoc(collection(db, 'users'), {...body, role: body.email === 'admin@nextkart.com' ? 'admin' : 'customer'});
+
+		return res.status(201).end();
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}
+}
+
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+	switch (req.method) {
+		case 'POST': return await postUser(req, res);
+		default: {
+			return res.status(405).end();
+		}
+	}
 };
 
-export default withAuth(handler);
+export default handler;

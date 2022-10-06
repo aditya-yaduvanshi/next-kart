@@ -1,0 +1,14 @@
+.nav {
+  @apply p-5 py-2 shadow-lg relative;
+  @apply flex justify-between items-center;
+  @apply bg-zinc-600 text-white;
+  @apply sticky top-0 left-0 right-0;
+}
+
+.left_container {
+  @apply flex justify-center items-center gap-5;
+}
+
+.flex_center {
+  @apply flex justify-center items-center;
+}

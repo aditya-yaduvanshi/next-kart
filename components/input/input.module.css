@@ -1,0 +1,23 @@
+.div {
+  @apply relative;
+}
+
+.input {
+  @apply border border-slate-300 outline-none rounded-md;
+  @apply placeholder:text-transparent placeholder:font-normal placeholder:bg-transparent;
+  @apply focus:shadow-md hover:border-slate-500;
+  @apply w-full h-11 px-3 z-10 pt-2;
+  @apply font-medium text-black;
+}
+
+.label {
+  @apply absolute top-2.5 left-3 transition-all cursor-text text-black;
+}
+
+.div:focus-within > .label,
+.input:focus + .label,
+.input:not(:placeholder-shown) + .label {
+  @apply transform left-2 top-0;
+  @apply text-xs text-black;
+  @apply px-1;
+}
