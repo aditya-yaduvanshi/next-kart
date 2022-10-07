@@ -1,12 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-type Data = {
-  name: string
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => {
+  switch (req.method) {
+    case 'GET':
+    case 'POST':
+    case 'PUT':
+    case 'DELETE':
+    default: return res.status(405).end();
+  }
 }
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  res.status(200).json({ name: 'John Doe' })
-}
+export default handler;

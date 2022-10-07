@@ -1,0 +1,15 @@
+.layout {
+  @apply overflow-hidden h-full;
+}
+
+.main {
+  @apply h-full pb-14 flex bg-zinc-200;
+}
+
+.sider {
+  @apply md:w-1/6;
+}
+
+.page {
+  @apply h-full w-full overflow-x-hidden overflow-y-auto pb-1;
+}

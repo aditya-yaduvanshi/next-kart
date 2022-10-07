@@ -1,0 +1,3 @@
+.loader {
+  @apply z-30 bg-white bg-opacity-80 flex justify-center items-center;
+}

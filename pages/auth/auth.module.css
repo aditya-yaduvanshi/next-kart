@@ -3,13 +3,41 @@
 }
 
 .div {
-  @apply p-32 rounded border border-slate-500 bg-zinc-100;
+  @apply py-5 px-8 rounded border border-slate-500 bg-white flex flex-col justify-center items-center relative;
 }
 
 .h1 {
   @apply text-xl uppercase text-center;
 }
 
+.form {
+  @apply flex flex-col gap-3 my-5;
+}
+
+.input {
+  @apply w-60;
+}
+
 .button {
-  @apply bg-red-500 flex justify-center items-center mt-5 p-2 gap-2 text-white rounded hover:shadow-lg;
+  @apply flex justify-center items-center mt-5 p-2 gap-2 border-transparent border text-white rounded hover:shadow-lg active:border-zinc-200;
+}
+
+.loader {
+  @apply absolute w-full h-full;
+}
+
+.submit {
+  @apply bg-zinc-600 hover:shadow-zinc-300;
+}
+
+.google {
+  @apply bg-red-500 w-full hover:shadow-red-300;
+}
+
+.error {
+  @apply text-red-500;
+}
+
+.line {
+  @apply w-full;
 }

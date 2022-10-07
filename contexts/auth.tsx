@@ -45,7 +45,7 @@ export interface IAuthContext {
 export const getHeaders = (token: string) => {
 	return {
 		'Content-Type': 'application/json',
-		Authorization: token,
+		'Authorization': token,
 	};
 };
 
@@ -62,7 +62,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [error, setError] = useState<string>();
 
 	useEffect(() => {
-		if (authLoading) setLoading(true);
+		setLoading(authLoading);
 		if (authError) setError(authError.message);
 	}, [authError, authLoading]);
 

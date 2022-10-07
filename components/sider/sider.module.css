@@ -1,0 +1,15 @@
+.sider {
+  @apply bg-zinc-700 py-5 text-white;
+}
+
+.sider_menu {
+  @apply flex flex-col gap-2;
+}
+
+.sider_item {
+  
+}
+
+.sider_link {
+
+}

@@ -20,9 +20,9 @@ export const useSider = () => {
 const SiderProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [sider, setSider] = useState(false);
 
-	const toggleSider = useCallback(() => {
+	const toggleSider = () => {
 		setSider((prev) => !prev);
-	}, []);
+	}
 
 	return (
 		<>

@@ -1,12 +1,12 @@
 .nav {
-  @apply p-5 py-2 shadow-lg relative;
+  @apply px-2 py-2 lg:px-5 shadow-lg relative;
   @apply flex justify-between items-center;
   @apply bg-zinc-600 text-white;
   @apply sticky top-0 left-0 right-0 z-50;
 }
 
 .left_container {
-  @apply flex justify-center items-center gap-5;
+  @apply flex justify-center items-center gap-1 md:gap-5;
 }
 
 .toggle {
@@ -22,8 +22,12 @@
   @apply bg-zinc-600 absolute left-0 right-0 -bottom-12 md:static py-1 px-5 md:p-0;
 }
 
+.search_input {
+  @apply bg-white;
+}
+
 .nav_links {
-  @apply flex gap-2;
+  @apply flex gap-1;
 }
 
 .nav_item {
@@ -31,7 +35,7 @@
 }
 
 .nav_link {
-  @apply px-2 py-1 hover:bg-zinc-500 rounded;
+  @apply p-1 hover:bg-zinc-500 rounded;
 }
 
 .avatar {

@@ -1,17 +1,17 @@
 .div {
-  @apply relative;
+  @apply relative z-10 rounded-md;
 }
 
 .input {
   @apply border border-slate-300 outline-none rounded-md;
-  @apply placeholder:text-transparent placeholder:font-normal placeholder:bg-transparent;
+  @apply placeholder:text-transparent placeholder:font-normal placeholder:bg-transparent bg-transparent;
   @apply focus:shadow-md hover:border-slate-500;
-  @apply w-full h-11 px-3 z-10 pt-2;
+  @apply w-full h-11 px-3 z-20 pt-2;
   @apply font-medium text-black;
 }
 
 .label {
-  @apply absolute top-2.5 left-3 transition-all cursor-text text-black;
+  @apply absolute top-2.5 left-3 transition-all cursor-text text-black -z-10;
 }
 
 .div:focus-within > .label,
@@ -20,4 +20,17 @@
   @apply transform left-2 top-0;
   @apply text-xs text-black;
   @apply px-1;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover, 
+.input:-webkit-autofill:focus, 
+.input:-webkit-autofill:active,
+.input:-internal-autofill-selected {
+  box-shadow: 0 0 0 0 transparent inset !important;
+  -webkit-box-shadow: 0 0 0 0 transparent inset !important;
+}
+
+.input:-webkit-autofill {
+  -webkit-text-fill-color: black !important;
 }

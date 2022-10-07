@@ -1,4 +1,3 @@
-import ProtectedRoute from 'hoc/protected-route';
 import {NextPage} from 'next';
 import React from 'react';
 
@@ -10,4 +9,4 @@ const Categories: NextPage = () => {
 	);
 };
 
-export default ProtectedRoute({Component: Categories});
+export default React.memo(Categories);
