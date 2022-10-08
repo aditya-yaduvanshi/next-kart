@@ -1,5 +1,5 @@
 import {USERS_URL} from 'constants/urls';
-import {AuthProvider, User, signOut} from 'firebase/auth';
+import {AuthProvider, User, signOut, onAuthStateChanged, onIdTokenChanged} from 'firebase/auth';
 import React, {
 	createContext,
 	PropsWithChildren,
@@ -20,7 +20,9 @@ export interface IUser {
 	role?: Role;
 	avatar?: string | null;
 	uid: string;
+	id?: string;
 	provider: AuthProvider['providerId'];
+	token: string;
 }
 
 export interface IAuthContext {
@@ -62,27 +64,48 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [error, setError] = useState<string>();
 
 	useEffect(() => {
+		onIdTokenChanged(auth, async (idToken) => {
+			console.log("idtoken", idToken)
+			if(!idToken) return;
+			let result = await idToken.getIdTokenResult()
+			console.log(result)
+		})
+		
+	}, []);
+
+	useEffect(() => {
 		setLoading(authLoading);
 		if (authError) setError(authError.message);
 	}, [authError, authLoading]);
 
 	useEffect(() => {
 		if (!authUser && !user) return;
-		getUser();
-	}, [authUser, USERS_URL]);
+		if(authUser && user) return;
+		if(authUser && !user)
+			getUser();
+	}, [authUser]);
 
 	const createUser = useCallback(
 		async (user: IUser) => {
 			if (!authUser) return;
 			try {
 				setLoading(true);
+				let token = await authUser.getIdToken()
 				const res = await fetch(USERS_URL, {
 					method: 'POST',
 					body: JSON.stringify(user),
-					headers: getHeaders(await authUser.getIdToken()),
+					headers: getHeaders(token),
 				});
 				switch (res.status) {
 					case 201: {
+						let id = res.headers.get('Location');
+						setUser(prev => {
+							if(prev === null) return prev;
+							return {
+								...prev,
+								id: id ?? '',
+							}
+						})
 						setLoading(false);
 						return;
 					}
@@ -110,8 +133,9 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 		if (!authUser) return;
 		try {
 			setLoading(true);
+			let token = await authUser.getIdToken();
 			const res = await fetch(`${USERS_URL}/${authUser.uid}`, {
-				headers: getHeaders(await authUser.getIdToken()),
+				headers: getHeaders(token),
 			});
 			switch (res.status) {
 				case 200: {
@@ -140,11 +164,11 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 						phone: authUser.phoneNumber,
 						avatar: authUser.photoURL,
 						uid: authUser.uid,
-						role: 'customer',
+						token: await authUser.getIdToken(),
 						provider: authUser.providerData[0].providerId,
 					};
 					await createUser(userData);
-					if (!error) setUser(userData);
+					if (!error) setUser({...userData, role: (await authUser.getIdTokenResult()).claims.role});
 					return;
 				}
 				default: {
@@ -157,7 +181,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 			setLoading(false);
 			console.log((err as Error).message);
 		}
-	}, [authUser, createUser]);
+	}, [authUser, createUser, USERS_URL]);
 
 	const signout = useCallback(async () => {
 		await signOut(auth);

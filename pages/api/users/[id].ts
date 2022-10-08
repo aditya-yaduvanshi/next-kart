@@ -10,6 +10,7 @@ import {
 import withAuth, {IRequest} from 'middlewares/withAuth';
 import type {NextApiResponse} from 'next';
 import {db} from 'utils/firebase';
+import {auth} from 'utils/admin.firebase';
 
 const getUser = async (req: IRequest, res: NextApiResponse) => {
 	try {
@@ -17,9 +18,6 @@ const getUser = async (req: IRequest, res: NextApiResponse) => {
 			user,
 			query: {id},
 		} = req;
-		if (!(id as string))
-			return res.status(400).json({error: 'Id was not provided!'});
-		if ((id as string) !== user.uid) return res.status(403).end();
 
 		let snaps = await getDocs(
 			query(collection(db, 'users'), where('uid', '==', id))
@@ -32,6 +30,21 @@ const getUser = async (req: IRequest, res: NextApiResponse) => {
 	}
 };
 
+const claimUser = async (req: IRequest, res: NextApiResponse) => {
+	try {
+		const {query: {id}, body} = req;
+		let user = await auth.getUser(id as string);
+		if(!user) return res.status(400).json({error: 'Invalid User Id!'});
+		
+		await auth.setCustomUserClaims(id as string, {
+			role: body.email === 'admin@nextkart.com' ? 'admin' : 'customer',
+		})
+		return res.status(200).json({});
+	} catch (err) {
+		return res.status(400).json({error: (err as Error).message});
+	}
+}
+
 const updateUser = async (req: IRequest, res: NextApiResponse) => {
 	try {
 		const {
@@ -39,9 +52,6 @@ const updateUser = async (req: IRequest, res: NextApiResponse) => {
 			query: {id},
 			user,
 		} = req;
-		if (!(id as string))
-			return res.status(400).json({error: 'Id was not provided!'});
-		if ((id as string) !== user.uid) return res.status(403).end();
 
 		let snaps = await getDocs(
 			query(collection(db, 'users'), where('uid', '==', id))
@@ -61,9 +71,6 @@ const removeUser = async (req: IRequest, res: NextApiResponse) => {
 			query: {id},
 			user,
 		} = req;
-		if (!(id as string))
-			return res.status(400).json({error: 'Id was not provided!'});
-		if ((id as string) !== user.uid) return res.status(403).end();
 
 		let snaps = await getDocs(
 			query(collection(db, 'users'), where('uid', '==', id))
@@ -78,9 +85,19 @@ const removeUser = async (req: IRequest, res: NextApiResponse) => {
 };
 
 const handler = async (req: IRequest, res: NextApiResponse) => {
+	const {
+		user,
+		query: {id},
+	} = req;
+	if (!(id as string))
+		return res.status(400).json({error: 'Id was not provided!'});
+	if ((id as string) !== user.uid) return res.status(403).end();
+
 	switch (req.method) {
 		case 'GET':
 			return await getUser(req, res);
+		case 'POST':
+			return await claimUser(req, res);
 		case 'PUT':
 			return await updateUser(req, res);
 		case 'DELETE':

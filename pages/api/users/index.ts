@@ -1,29 +1,33 @@
 import {IUser} from 'contexts/auth';
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {db} from 'utils/firebase';
-import {collection, where, query, getDocs, addDoc} from 'firebase/firestore';
+import {db, auth} from 'utils/admin.firebase';
 
 const postUser = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const body = req.body as IUser;
-		if (body.provider === 'google.com') {
-		} // skip validating data
-		let snaps = await getDocs(
-			query(collection(db, 'users'), where('uid', '==', body.uid))
-		);
+
+		let snaps = await db.collection('users').where('email', '==', body.email).get();
 
 		if (snaps.docs.length)
 			return res.status(400).json({error: 'User already exists!'});
+		
 		let user = {
 			...body,
 			role: body.email === 'admin@nextkart.com' ? 'admin' : 'customer',
 		};
-		await addDoc(collection(db, 'users'), user);
+		await auth.setCustomUserClaims(user.uid, {
+			role: user.email === 'admin@nextkart.com' ? 'admin' : 'customer',
+		})
+		let userRef = db.collection('users').doc();
+		await userRef.create(user);
+		user.id = userRef.id;
 
 		res.setHeader(
 			'set-cookie',
 			`user=${JSON.stringify(user)}; path=/; samesite=lax; httponly;`
 		);
+
+		res.setHeader('Location', userRef.id);
 
 		return res.status(201).end();
 	} catch (err) {

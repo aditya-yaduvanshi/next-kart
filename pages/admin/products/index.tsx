@@ -1,3 +1,4 @@
+import { protectedRoute } from 'hoc/protected-route';
 import {NextPage} from 'next';
 import React from 'react';
 
@@ -9,4 +10,4 @@ const AdminProducts: NextPage = () => {
 	);
 };
 
-export default React.memo(AdminProducts);
+export default protectedRoute({Component: React.memo(AdminProducts)});

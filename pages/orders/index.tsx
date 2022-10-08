@@ -1,3 +1,4 @@
+import privateRoute from 'hoc/private-route';
 import {NextPage} from 'next';
 import React from 'react';
 
@@ -9,4 +10,4 @@ const Orders: NextPage = () => {
 	);
 };
 
-export default React.memo(Orders); 
+export default privateRoute({Component: React.memo(Orders)}); 
