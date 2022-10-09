@@ -1,14 +1,11 @@
 import Img from 'components/img';
+import { IProduct } from 'contexts/products';
 import React from 'react';
+import { FaStar } from 'react-icons/fa';
 import styles from './product-card.module.css';
 
 export interface ProductCardProps {
-	product: {
-		title: string;
-		price: number;
-		thumbnail: string;
-		id: string;
-	};
+	product: IProduct;
 	className?: string;
 }
 
@@ -16,6 +13,7 @@ const ProductCard: React.FC<ProductCardProps> = ({product: {
 	thumbnail,
 	title,
 	price,
+	rating
 }, className}) => {
 	return (
 		<>
@@ -31,6 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({product: {
 				/>
 				<div className={styles.body}>
 					<h3>{title.length > 25 ? title.slice(0, 25) + '...' : title}</h3>
+					<p className={styles.rating}>{rating} <FaStar /></p>
 					<p className={styles.price}>
 						Price Rs. <strong>{price}</strong>
 					</p>

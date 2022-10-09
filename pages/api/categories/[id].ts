@@ -44,17 +44,17 @@ const updateCategory = async (req: IRequest, res: NextApiResponse) => {
   }
 }
 
-const deleteCategory = async (req: IRequest, res: NextApiResponse) => {
-  try {
-    const id = req.query.id as string;
+// const deleteCategory = async (req: IRequest, res: NextApiResponse) => {
+//   try {
+//     const id = req.query.id as string;
 
-    await db.collection('categories').doc(id).delete();
+//     await db.collection('categories').doc(id).delete();
 
-    return res.status(204).end();
-  } catch (err) {
-    return res.status(400).json({error: (err as Error).message});
-  }
-}
+//     return res.status(204).end();
+//   } catch (err) {
+//     return res.status(400).json({error: (err as Error).message});
+//   }
+// }
 
 
 const handler = async (
@@ -66,7 +66,6 @@ const handler = async (
   switch (req.method) {
     case 'GET': return getCategory(req, res);
     case 'PUT': return updateCategory(req, res);
-    case 'DELETE': return deleteCategory(req, res);
     default: return res.status(405).end();
   }
 }

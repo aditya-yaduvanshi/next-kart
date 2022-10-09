@@ -2,7 +2,7 @@ import withAuth, {IRequest} from 'middlewares/withAuth';
 import type {NextApiResponse} from 'next';
 import {db} from 'utils/admin.firebase';
 
-interface IQuery {
+export interface IQuery {
 	limit?: number;
 	page?: number;
 }

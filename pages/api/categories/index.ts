@@ -22,14 +22,16 @@ const createCategory = async (req: IRequest, res: NextApiResponse) => {
     const body = req.body as ICategory;
     if(!body.name || !body.image) return res.status(400).json({error: 'All Fields Are Required!'});
 
-    let docRef = db.collection('categories').doc()
+    let category = await db.collection('categories').where('name', '==', body.name.toLowerCase()).get();
+    if(category.docs.length > 0) return res.status(400).json({error: 'Category name already exists!'});
+
+    let docRef = db.collection('categories').doc();
     await docRef.create({
-      name: body.name,
+      name: body.name.toLowerCase(),
       image: body.image,
     });
 
     res.setHeader('Location', docRef.id);
-
     return res.status(201).end();
   } catch (err) {
     return res.status(400).json({error: (err as Error).message});

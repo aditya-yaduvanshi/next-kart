@@ -1,6 +1,7 @@
 import React from "react";
 
 const CartSider: React.FC = () => {
+
   return (
     <>
       <aside>
