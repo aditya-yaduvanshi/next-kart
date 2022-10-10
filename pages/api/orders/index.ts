@@ -1,14 +1,31 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import withAuth, { IRequest } from 'middlewares/withAuth';
+import type { NextApiResponse } from 'next'
+
+const getOrders = async (req: IRequest, res: NextApiResponse) => {
+  try {
+
+  } catch (err) {
+
+  }
+}
+
+const createOrder = async (req: IRequest, res: NextApiResponse) => {
+  try {
+
+  } catch (err) {
+    
+  }
+}
 
 const handler = async (
-  req: NextApiRequest,
+  req: IRequest,
   res: NextApiResponse
 ) => {
   switch (req.method) {
-    case 'GET':
-    case 'POST':
+    case 'GET': return getOrders(req, res)
+    case 'POST': return createOrder(req, res);
     default: return res.status(405).end();
   }
 }
 
-export default handler;
+export default withAuth(handler);

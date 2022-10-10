@@ -11,7 +11,7 @@ const Pagination: React.FC<PaginationProps> = ({onNext, onPrev, page}) => {
   return (
     <>
       <footer className={styles.pagination}>
-        <button className={styles.button} onClick={onPrev}>Prev</button>
+        <button className={styles.button} onClick={onPrev} disabled={page === 1}>Prev</button>
         <span className={`${styles.button} ${styles.page}`}>{page}</span>
         <button className={styles.button} onClick={onNext}>Next</button>
       </footer>

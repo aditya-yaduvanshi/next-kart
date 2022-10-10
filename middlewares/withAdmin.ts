@@ -1,5 +1,5 @@
-import {NextApiRequest, NextApiResponse} from 'next';
-import withAuth, {IRequest} from './withAuth';
+import {NextApiResponse} from 'next';
+import {IRequest} from './withAuth';
 
 const withAdmin = (handler: Function) => {
 	return async (req: IRequest, res: NextApiResponse) => {

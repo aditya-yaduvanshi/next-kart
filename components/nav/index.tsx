@@ -13,18 +13,22 @@ import {
 } from 'react-icons/fa';
 import {useAuth} from 'contexts/auth';
 import {useSider} from 'contexts/sider';
+import { useCart } from 'contexts/cart';
 
 const Nav: React.FC = () => {
 	const {user, signout, loading} = useAuth();
 	const {toggleSider} = useSider();
-	
+	const {toggleSiderCart} = useCart();
+
 	return (
 		<>
 			<nav className={styles.nav}>
 				<div className={styles.left_container}>
-					<button className={styles.toggle} onClick={toggleSider}>
-						<FaBars size='28' />
-					</button>
+					{user && (
+						<button className={styles.toggle} onClick={toggleSider}>
+							<FaBars size='28' />
+						</button>
+					)}
 					<NavLink href='/' className={styles.brand}>
 						<Img src='/nextkart.png' alt='cart-icon' width='125' height='30' />
 					</NavLink>
@@ -81,7 +85,7 @@ const Nav: React.FC = () => {
 						)
 					)}
 					<li className={styles.nav_item}>
-						<NavLink href='/cart' className={styles.nav_link}>
+						<NavLink href="#cart" className={styles.nav_link} onClick={toggleSiderCart}>
 							Cart <FaShoppingCart size='16' />
 						</NavLink>
 					</li>

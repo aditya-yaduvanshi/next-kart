@@ -1,16 +1,6 @@
-import {
-	collection,
-	deleteDoc,
-	doc,
-	getDocs,
-	query,
-	updateDoc,
-	where,
-} from 'firebase/firestore';
 import withAuth, {IRequest} from 'middlewares/withAuth';
 import type {NextApiResponse} from 'next';
-import {db} from 'utils/firebase';
-import {auth} from 'utils/admin.firebase';
+import {auth, db} from 'utils/admin.firebase';
 
 const getUser = async (req: IRequest, res: NextApiResponse) => {
 	try {
@@ -19,9 +9,8 @@ const getUser = async (req: IRequest, res: NextApiResponse) => {
 			query: {id},
 		} = req;
 
-		let snaps = await getDocs(
-			query(collection(db, 'users'), where('uid', '==', id))
-		);
+		let snaps = await db.collection('users').where('uid', '==', id).get();
+
 		if (!snaps.docs.length) return res.status(404).end();
 		let userData = {id: snaps.docs[0].id, ...snaps.docs[0].data()};
 		return res.status(200).json(userData);
@@ -35,54 +24,54 @@ const claimUser = async (req: IRequest, res: NextApiResponse) => {
 		const {query: {id}, body} = req;
 		let user = await auth.getUser(id as string);
 		if(!user) return res.status(400).json({error: 'Invalid User Id!'});
-		
-		await auth.setCustomUserClaims(id as string, {
+
+		let claim =  {
 			role: body.email === 'admin@nextkart.com' ? 'admin' : 'customer',
-		})
-		return res.status(200).json({});
+		}
+		await auth.setCustomUserClaims(id as string, claim);
+
+		return res.status(200).json({...user, ...claim});
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}
 }
 
-const updateUser = async (req: IRequest, res: NextApiResponse) => {
-	try {
-		const {
-			body,
-			query: {id},
-			user,
-		} = req;
+// const updateUser = async (req: IRequest, res: NextApiResponse) => {
+// 	try {
+// 		const {
+// 			body,
+// 			query: {id},
+// 			user,
+// 		} = req;
 
-		let snaps = await getDocs(
-			query(collection(db, 'users'), where('uid', '==', id))
-		);
-		if (!snaps.docs.length) return res.status(404).end();
+// 		let snaps = await db.collection('users').where('uid', '==', id).get();
 
-		await updateDoc(snaps.docs[0].ref, body);
-		return res.status(200).end();
-	} catch (err) {
-		return res.status(400).json({error: (err as Error).message});
-	}
-};
+// 		if (!snaps.docs.length) return res.status(404).end();
 
-const removeUser = async (req: IRequest, res: NextApiResponse) => {
-	try {
-		const {
-			query: {id},
-			user,
-		} = req;
+// 		await snaps.docs[0].ref.update(body);
+// 		return res.status(200).end();
+// 	} catch (err) {
+// 		return res.status(400).json({error: (err as Error).message});
+// 	}
+// };
 
-		let snaps = await getDocs(
-			query(collection(db, 'users'), where('uid', '==', id))
-		);
-		if (!snaps.docs.length) return res.status(404).end();
+// const removeUser = async (req: IRequest, res: NextApiResponse) => {
+// 	try {
+// 		const {
+// 			query: {id},
+// 			user,
+// 		} = req;
 
-		await deleteDoc(snaps.docs[0].ref);
-		return res.status(204).end();
-	} catch (err) {
-		return res.status(400).json({error: (err as Error).message});
-	}
-};
+// 		let snaps = await db.collection('users').where('uid', '==', id).get();
+
+// 		if (!snaps.docs.length) return res.status(404).end();
+
+// 		await snaps.docs[0].ref.delete();
+// 		return res.status(204).end();
+// 	} catch (err) {
+// 		return res.status(400).json({error: (err as Error).message});
+// 	}
+// };
 
 const handler = async (req: IRequest, res: NextApiResponse) => {
 	const {
@@ -98,10 +87,10 @@ const handler = async (req: IRequest, res: NextApiResponse) => {
 			return await getUser(req, res);
 		case 'POST':
 			return await claimUser(req, res);
-		case 'PUT':
-			return await updateUser(req, res);
-		case 'DELETE':
-			return await removeUser(req, res);
+		// case 'PUT':
+		// 	return await updateUser(req, res);
+		// case 'DELETE':
+		// 	return await removeUser(req, res);
 		default:
 			return res.status(405).end();
 	}

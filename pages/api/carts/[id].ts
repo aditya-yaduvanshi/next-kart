@@ -63,11 +63,11 @@ const deleteItem = async (req: IRequest, res: NextApiResponse) => {
 const handler = async (req: IRequest, res: NextApiResponse) => {
 	switch (req.method) {
 		case 'GET':
-			return getItem(req, res);
+			return await getItem(req, res);
 		case 'PUT':
-			return updateItem(req, res);
+			return await updateItem(req, res);
 		case 'DELETE':
-			return deleteItem(req, res);
+			return await deleteItem(req, res);
 		default:
 			return res.status(405).end();
 	}

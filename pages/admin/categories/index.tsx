@@ -1,8 +1,10 @@
+import { useCategories } from 'contexts/categories';
 import { protectedRoute } from 'hoc/protected-route';
 import {NextPage} from 'next';
 import React from 'react';
 
 const Categories: NextPage = () => {
+	const {categories} = useCategories();
 	return (
 		<>
 			<div className='container'>Categories</div>

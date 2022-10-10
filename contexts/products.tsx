@@ -13,7 +13,6 @@ export interface IProduct {
 	price: number;
 	thumbnail: string;
 	id: string;
-	rating: number;
 }
 
 export interface IProductDetail extends IProduct {
@@ -23,11 +22,23 @@ export interface IProductDetail extends IProduct {
 	category: string;
 }
 
+export interface IQuery {
+  page?: number;
+  limit?: number;
+}
+
+interface IProductQuery extends IQuery {
+  category?: string;
+}
+
 interface IProductContext {
-	products: IProduct[];
+	products: {
+    page: number;
+    products: IProduct[];
+  }[];
 	loading: boolean;
 	error: string;
-	getProducts: () => void;
+	getProducts: (query: IProductQuery) => void;
 	getProductDetails: () => void;
 	addNewProduct: () => void;
 	editProduct: () => void;
@@ -48,7 +59,7 @@ const ProductProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
-	const getProducts: IProductContext['getProducts'] = useCallback(async () => {
+	const getProducts: IProductContext['getProducts'] = useCallback(async ({page = 1, limit = 20, category}) => {
 		try {
 		} catch (err) {}
 	}, []);

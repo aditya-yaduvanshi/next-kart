@@ -84,9 +84,9 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 const handler = async (req: IRequest, res: NextApiResponse) => {
 	switch (req.method) {
 		case 'GET':
-			return getItems(req, res);
+			return await getItems(req, res);
 		case 'POST':
-			return addItem(req, res);
+			return await addItem(req, res);
 		default:
 			return res.status(405).end();
 	}

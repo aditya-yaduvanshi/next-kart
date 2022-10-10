@@ -19,28 +19,28 @@ const Sider: React.FC<SiderProps> = ({className}) => {
 		<>
 			<aside className={`${styles.sider} ${className}`}>
 				<ul>
-					{user && user.role === 'admin' ? (
+					{user && (user.role === 'admin' ? (
 						<>
 							<li className={styles.sider_item}>
-								<NavLink href='/admin/products'><FaList size='20' /> Products</NavLink>
+								<NavLink href='/admin/products' className={styles.sider_link}><FaList size='20' /> Products</NavLink>
 							</li>
 							<li className={styles.sider_item}>
-								<NavLink href='/admin/orders'>Orders</NavLink>
+								<NavLink href='/admin/orders' className={styles.sider_link}>Orders</NavLink>
 							</li>
 							<li className={styles.sider_item}>
-								<NavLink href='/admin/categories'><FaSitemap size='20' /> Categories</NavLink>
+								<NavLink href='/admin/categories' className={styles.sider_link}><FaSitemap size='20' /> Categories</NavLink>
 							</li>
 						</>
 					) : (
 						<>
 							<li className={styles.sider_item}>
-								<NavLink href='/account'>Products</NavLink>
+								<NavLink href='/products' className={styles.sider_link}>Products</NavLink>
 							</li>
 							<li className={styles.sider_item}>
-								<NavLink href='/orders'>Orders</NavLink>
+								<NavLink href='/orders' className={styles.sider_link}>Orders</NavLink>
 							</li>
 						</>
-					)}
+					))}
 				</ul>
 			</aside>
 		</>

@@ -13,7 +13,7 @@ export const protectedRoute = ({Component, redirectTo}: RouteProps) => {
 	
 		useLayoutEffect(() => {
 			if (!user && !loading) push('/auth/signin');
-			if (user && user.role !== 'admin') push('/');
+			if (user && user.role !== 'admin') push('/products');
 		}, [user, loading]);
 	
 		if (loading) return <>loading...</>;
