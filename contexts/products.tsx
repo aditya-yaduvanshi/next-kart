@@ -20,6 +20,7 @@ export interface IProductDetail extends IProduct {
 	images?: string[];
 	stock: number;
 	category: string;
+	brand: string;
 }
 
 export interface IQuery {

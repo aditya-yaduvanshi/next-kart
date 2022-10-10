@@ -58,7 +58,6 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse) => {
 				title: doc.get('title'),
 				thumbnail: doc.get('thumbnail'),
 				price: doc.get('price'),
-				rating: doc.get('rating'),
 			}))
 		);
 	} catch (err) {
@@ -75,7 +74,8 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 			!body.price ||
 			!body.thumbnail ||
 			!body.stock ||
-			!body.category
+			!body.category ||
+			!body.brand
 		)
 			return res.status(400).json({error: 'Required fields are missing!'});
 
@@ -96,6 +96,11 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 			return res
 				.status(400)
 				.json({error: 'Stock should be a positive number!'});
+			
+		if (typeof body.brand !== 'string')
+			return res
+				.status(400)
+				.json({error: 'Brand should be a valid text!'});
 
 		if (body.description && typeof body.description !== 'string')
 			return res
@@ -131,6 +136,7 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 			price: body.price,
 			stock: body.stock,
 			thumbnail: body.thumbnail,
+			brand: body.brand,
 			description: body.description ?? '',
 			slug: `${(body.title as string).toLowerCase().split(' ').join('-')}_${
 				productRef.id

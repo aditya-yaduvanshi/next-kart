@@ -1,6 +1,6 @@
 import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
-import React, {useLayoutEffect} from 'react';
+import React, {useEffect} from 'react';
 import PrivateRoute, {RouteProps} from 'hoc/private-route';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { auth } from 'utils/firebase';
@@ -9,10 +9,10 @@ import { AppProps } from 'next/app';
 export const protectedRoute = ({Component, redirectTo}: RouteProps) => {
 	const ProtectedRoute = (props: any) => {
 		const {user, loading} = useAuth();
-		const {push, query} = useRouter();
+		const {push, pathname} = useRouter();
 	
-		useLayoutEffect(() => {
-			if (!user && !loading) push('/auth/signin');
+		useEffect(() => {
+			if (!user && !loading) push(`/auth/signin?redirect=${redirectTo ?? pathname}`);
 			if (user && user.role !== 'admin') push('/products');
 		}, [user, loading]);
 	

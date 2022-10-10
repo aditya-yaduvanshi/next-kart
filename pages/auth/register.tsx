@@ -3,37 +3,34 @@ import {NextPage} from 'next';
 import React, {useEffect, useRef, useState} from 'react';
 import {FaGoogle} from 'react-icons/fa';
 import styles from './auth.module.css';
-import {
-	useCreateUserWithEmailAndPassword,
-	useSignInWithGoogle,
-} from 'react-firebase-hooks/auth';
-import {auth} from 'utils/firebase';
-import { useAuth } from 'contexts/auth';
-import { useRouter } from 'next/router';
+import {useAuth} from 'contexts/auth';
+import {useRouter} from 'next/router';
 import Spinner from 'components/spinner';
 
 const Register: NextPage = () => {
+	const {user, loading, googleSignin, register, error} = useAuth();
+	const {push, query} = useRouter();
+
 	const emailRef = useRef<HTMLInputElement | null>(null);
 	const passwordRef = useRef<HTMLInputElement | null>(null);
 	const password2Ref = useRef<HTMLInputElement | null>(null);
-	const [error, setError] = useState('');
+	const [inputError, setInputError] = useState(error ?? '');
 
-	const [register] = useCreateUserWithEmailAndPassword(auth);
-	const [google] = useSignInWithGoogle(auth);
-  const {user, loading} = useAuth();
-  const {push, query} = useRouter();
-
-  useEffect(() => {
-    if(!user) return;
-    push(user.role === 'admin' ? (query.redirect as string ?? '/admin/dashboard') : (query.redirect as string ?? '/'))
-  }, [push, query, user]);
+	useEffect(() => {
+		if (!user) return;
+		push(
+			user.role === 'admin'
+				? (query.redirect as string) ?? '/admin/dashboard'
+				: (query.redirect as string) ?? '/'
+		);
+	}, [push, query, user]);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!emailRef.current?.value.trim()) return;
 		if (!passwordRef.current?.value.trim()) return;
 		if (passwordRef.current?.value !== password2Ref.current?.value)
-			return setError('Password do not matches!');
+			return setInputError('Password do not matches!');
 		await register(emailRef.current.value, passwordRef.current.value);
 	};
 
@@ -42,7 +39,7 @@ const Register: NextPage = () => {
 			<div className={styles.section}>
 				<div className={styles.div}>
 					<h1 className={styles.h1}>Register</h1>
-          {loading && <Spinner className={styles.loader} />}
+					{loading && <Spinner className={styles.loader} />}
 					<form onSubmit={handleSubmit} className={styles.form}>
 						<Input
 							placeholder='Email'
@@ -52,7 +49,7 @@ const Register: NextPage = () => {
 							maxLength={64}
 							ref={emailRef}
 							className={styles.input}
-              autoComplete="off"
+							autoComplete='off'
 						/>
 						<Input
 							placeholder='Password'
@@ -62,7 +59,7 @@ const Register: NextPage = () => {
 							maxLength={16}
 							ref={passwordRef}
 							className={styles.input}
-              autoComplete="off"
+							autoComplete='off'
 						/>
 						<Input
 							placeholder='Confirm Password'
@@ -72,14 +69,20 @@ const Register: NextPage = () => {
 							maxLength={16}
 							ref={password2Ref}
 							className={styles.input}
-              autoComplete="off"
+							autoComplete='off'
 						/>
+						{inputError ? <p className={styles.error}>{inputError}</p> : null}
 						{error ? <p className={styles.error}>{error}</p> : null}
-						<button type='submit' className={`${styles.button} ${styles.submit}`}>Submit</button>
+						<button
+							type='submit'
+							className={`${styles.button} ${styles.submit}`}
+						>
+							Submit
+						</button>
 					</form>
-          <hr className={styles.line} />
+					<hr className={styles.line} />
 					<button
-						onClick={() => google(['email', 'profile'])}
+						onClick={googleSignin}
 						className={`${styles.button} ${styles.google}`}
 					>
 						<FaGoogle size='20' /> <span>Register With Google</span>

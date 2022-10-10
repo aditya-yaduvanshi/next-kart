@@ -11,5 +11,5 @@
 }
 
 .sider_link {
-  @apply justify-start p-2 m-1 hover:bg-zinc-500 rounded;
+  @apply justify-start p-2 m-1 hover:bg-zinc-500 rounded gap-2 border border-transparent active:border-zinc-400;
 }

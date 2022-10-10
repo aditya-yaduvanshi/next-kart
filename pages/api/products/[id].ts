@@ -40,7 +40,8 @@ const updateProduct = async (req: IRequest, res: NextApiResponse) => {
 			!body.thumbnail &&
 			!body.stock &&
 			!body.category &&
-      !body.images
+      !body.images &&
+      !body.brand
 		)
 			return res.status(400).json({error: 'Body cannot be empty!'});
 
@@ -59,6 +60,11 @@ const updateProduct = async (req: IRequest, res: NextApiResponse) => {
       updatedData = {
         ...updatedData,
         stock: body.stock,
+      }
+    if(body.brand && typeof body.brand === 'string')
+      updatedData = {
+        ...updatedData,
+        brand: body.brand,
       }
     if(body.thumbnail && typeof body.thumbnail === 'string' && validation.isImageUrl(body.thumbnail))
       updatedData = {

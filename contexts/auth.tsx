@@ -1,17 +1,27 @@
 import {USERS_URL} from 'constants/urls';
-import {AuthProvider, User, signOut, onAuthStateChanged, onIdTokenChanged} from 'firebase/auth';
+import {
+	User,
+	signOut,
+	signInWithEmailAndPassword,
+	signInWithPopup,
+	OAuthProvider,
+	createUserWithEmailAndPassword,
+} from 'firebase/auth';
 import React, {
 	createContext,
 	PropsWithChildren,
 	useCallback,
 	useContext,
-	useEffect,
 	useState,
 } from 'react';
-import {useAuthState} from 'react-firebase-hooks/auth';
 import {auth} from 'utils/firebase';
 
 export type Role = 'admin' | 'customer';
+export type ClaimType = 'register' | 'signin';
+
+const google = new OAuthProvider('google.com');
+google.addScope('email');
+google.addScope('profile');
 
 export interface IUser {
 	name?: string | null;
@@ -20,29 +30,18 @@ export interface IUser {
 	role?: Role;
 	avatar?: string | null;
 	uid: string;
-	id?: string;
-	provider: AuthProvider['providerId'];
-	token: string;
 }
 
 export interface IAuthContext {
 	user: IUser | null;
 	loading: boolean;
 	error?: string;
-	authUser?: User | null;
-	authLoading: boolean;
-	authError?: Error;
 	signout: () => Promise<void>;
+	claimUser: (user: User, type: ClaimType) => Promise<void>;
+	signin: (email: string, password: string) => Promise<void>;
+	register: (email: string, password: string) => Promise<void>;
+	googleSignin: () => Promise<void>;
 }
-
-// interface IHandleResponse {
-//   status: '200' | '201' | '204' | '400' | '401' | '403' | '404' | '500' | '502';
-//   handler: {'200': Function, '201': Function, '204': Function, '206': Function, '400': Function, '401': Function, '403': Function, '404': Function, '500': Function, '502': Function};
-// }
-
-// const handleResponse = async ({status, handler}: IHandleResponse) => {
-//   return handler[status];
-// }
 
 export const getHeaders = (token: string) => {
 	return {
@@ -58,54 +57,27 @@ export const useAuth = () => {
 };
 
 const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
-	const [authUser, authLoading, authError] = useAuthState(auth);
 	const [user, setUser] = useState<IAuthContext['user']>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>();
 
-	useEffect(() => {
-		onIdTokenChanged(auth, async (idToken) => {
-			console.log("idtoken", idToken)
-			if(!idToken) return;
-			let result = await idToken.getIdTokenResult()
-			console.log(result)
-		})
-		
-	}, []);
-
-	useEffect(() => {
-		setLoading(authLoading);
-		if (authError) setError(authError.message);
-	}, [authError, authLoading]);
-
-	useEffect(() => {
-		if (!authUser && !user) return;
-		if(authUser && user) return;
-		if(authUser && !user)
-			getUser();
-	}, [authUser]);
-
-	const createUser = useCallback(
-		async (user: IUser) => {
-			if (!authUser) return;
+	const claimUser: IAuthContext['claimUser'] = useCallback(
+		async (user, type) => {
 			try {
 				setLoading(true);
-				let token = await authUser.getIdToken()
+				let token = await user.getIdToken();
 				const res = await fetch(USERS_URL, {
 					method: 'POST',
-					body: JSON.stringify(user),
+					body: JSON.stringify({
+						token,
+						type,
+					}),
 					headers: getHeaders(token),
 				});
 				switch (res.status) {
-					case 201: {
-						let id = res.headers.get('Location');
-						setUser(prev => {
-							if(prev === null) return prev;
-							return {
-								...prev,
-								id: id ?? '',
-							}
-						})
+					case 200: {
+						const result = (await res.json()) as IUser;
+						setUser(result);
 						setLoading(false);
 						return;
 					}
@@ -126,62 +98,48 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 				console.log((err as Error).message);
 			}
 		},
-		[USERS_URL, authUser]
+		[USERS_URL, getHeaders]
 	);
 
-	const getUser = useCallback(async () => {
-		if (!authUser) return;
-		try {
-			setLoading(true);
-			let token = await authUser.getIdToken();
-			const res = await fetch(`${USERS_URL}/${authUser.uid}`, {
-				headers: getHeaders(token),
-			});
-			switch (res.status) {
-				case 200: {
-					let result = await res.json();
-					setUser(result);
-					setLoading(false);
-					return;
-				}
-				case 400: {
-					let result = await res.json();
-					setError(result.error as string);
-					setLoading(false);
-					return;
-				}
-				case 401: {
-					setUser(null);
-					setError('Please Signin Again!');
-					setLoading(false);
-					return;
-				}
-				case 404: {
-					setLoading(false);
-					let userData: IUser = {
-						name: authUser.displayName,
-						email: authUser.email,
-						phone: authUser.phoneNumber,
-						avatar: authUser.photoURL,
-						uid: authUser.uid,
-						token: await authUser.getIdToken(),
-						provider: authUser.providerData[0].providerId,
-					};
-					await createUser(userData);
-					if (!error) setUser({...userData, role: (await authUser.getIdTokenResult()).claims.role});
-					return;
-				}
-				default: {
-					setError('Something Went Wrong! Please try again later!');
-					setLoading(false);
-					return;
-				}
+	const register: IAuthContext['register'] = useCallback(
+		async (email, password) => {
+			try {
+				const {user} = await createUserWithEmailAndPassword(
+					auth,
+					email,
+					password
+				);
+				await claimUser(user, 'register');
+			} catch (err) {
+				setError((err as Error).message);
+				setLoading(false);
 			}
+		},
+		[claimUser, createUserWithEmailAndPassword, auth]
+	);
+
+	const signin: IAuthContext['signin'] = useCallback(
+		async (email, password) => {
+			try {
+				const {user} = await signInWithEmailAndPassword(auth, email, password);
+				await claimUser(user, 'signin');
+			} catch (err) {
+				setError((err as Error).message);
+				setLoading(false);
+			}
+		},
+		[claimUser, signInWithEmailAndPassword, auth]
+	);
+
+	const googleSignin: IAuthContext['googleSignin'] = useCallback(async () => {
+		try {
+			const {user} = await signInWithPopup(auth, google);
+			await claimUser(user, 'register');
 		} catch (err) {
+			setError((err as Error).message);
 			setLoading(false);
-			console.log((err as Error).message);
 		}
-	}, [authUser, createUser, USERS_URL]);
+	}, [claimUser, signInWithPopup, google, auth]);
 
 	const signout = useCallback(async () => {
 		await signOut(auth);
@@ -193,12 +151,13 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 			<AuthContext.Provider
 				value={{
 					user: user ? {...user} : user,
+					claimUser,
 					loading,
 					error,
-					authUser: authUser ? {...authUser} : authUser,
-					authLoading,
-					authError,
-					signout
+					signout,
+					signin,
+					googleSignin,
+					register
 				}}
 			>
 				{children}

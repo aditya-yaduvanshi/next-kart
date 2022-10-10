@@ -1,25 +1,23 @@
 import {useAuth} from 'contexts/auth';
 import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
-import type { AppProps } from 'next/app';
 import {useRouter} from 'next/router';
-import React, {useLayoutEffect} from 'react';
-import {auth} from 'utils/firebase';
+import React, {useEffect} from 'react';
 import Spinner from 'components/spinner';
 
 export interface RouteProps {
-	Component: NextPage;
+	Component: NextPage<any>;
 	redirectTo?: string;
 };
 
 export const privateRoute = ({Component, redirectTo}: RouteProps) => {
 	const PrivateRoute = (props: any) => {
 		const {user, loading} = useAuth();
-		const {push, query} = useRouter();
+		const {push, query, pathname} = useRouter();
 		const redirect = query.redirect as string;
 
-		useLayoutEffect(() => {
+		useEffect(() => {
 			if (!user && !loading)
-				push('/auth/signin', {query: {redirect: redirect ?? redirectTo}});
+				push(`/auth/signin?redirect=${redirect ?? redirectTo ?? pathname}`);
 		}, [user, loading]);
 
 		if (loading) return <Spinner />;
@@ -29,9 +27,11 @@ export const privateRoute = ({Component, redirectTo}: RouteProps) => {
 	return React.memo(PrivateRoute);
 };
 
-// export const privateRoute = (gssp: GetServerSideProps) => {
+// export const serverSidePrivateRoute = (gssp: GetServerSideProps) => {
 // 	return async (ctx: GetServerSidePropsContext) => {
-// 		let cookies = parseCookies(ctx)
+// 		const auth = (await import('utils/admin.firebase')).auth;
+// 		let cookies = ctx.req.cookies;
+
 // 		console.log(cookies.user)
 // 		if (ctx.req.headers.cookie)
 // 			return {
