@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useEffect, useRef, useState} from 'react';
+import React, {PropsWithChildren, useCallback, useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 
 interface ModalProps extends PropsWithChildren {
@@ -10,17 +10,17 @@ const Modal: React.FC<ModalProps> = ({children, show, onClose}) => {
 	const [browser, setBrowser] = useState(false);
   const modalRef = useRef() as React.RefObject<HTMLDivElement>;
 
-  const handleBackDropClick = (e: MouseEvent) => {
+  const handleBackDropClick = useCallback((e: MouseEvent) => {
     if(!modalRef.current?.contains(e.target as Node)) return;
     onClose();
-  }
+  }, [onClose, modalRef]);
 
 	useEffect(() => {
 		setBrowser(true);
     window.addEventListener('click', handleBackDropClick);
 
     return window.removeEventListener('click', handleBackDropClick);
-	}, []);
+	}, [handleBackDropClick]);
 
 	if (!browser) return null;
 

@@ -3,7 +3,7 @@
 }
 
 .div {
-  @apply py-5 px-8 rounded border border-slate-500 bg-white flex flex-col justify-center items-center relative;
+  @apply py-5 px-5 sm:px-8 rounded border border-slate-500 bg-white flex flex-col justify-center items-center relative;
 }
 
 .h1 {
@@ -11,11 +11,11 @@
 }
 
 .form {
-  @apply flex flex-col gap-3 my-5;
+  @apply flex flex-col gap-3 my-5 overflow-hidden;
 }
 
 .input {
-  @apply w-60;
+  @apply max-w-xs;
 }
 
 .button {
@@ -35,7 +35,7 @@
 }
 
 .error {
-  @apply text-red-500;
+  @apply text-red-500 max-w-xs py-1 px-2 border border-red-500 bg-white rounded-md font-semibold;
 }
 
 .line {

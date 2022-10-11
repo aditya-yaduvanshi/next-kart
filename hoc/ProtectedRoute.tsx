@@ -1,7 +1,7 @@
 import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
 import React, {useEffect} from 'react';
-import PrivateRoute, {RouteProps} from 'hoc/private-route';
+import PrivateRoute, {RouteProps} from 'hoc/PrivateRoute';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { auth } from 'utils/firebase';
 import { AppProps } from 'next/app';

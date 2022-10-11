@@ -3,6 +3,7 @@ import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import {useRouter} from 'next/router';
 import React, {useEffect} from 'react';
 import Spinner from 'components/spinner';
+import {auth} from 'utils/firebase';
 
 export interface RouteProps {
 	Component: NextPage<any>;
@@ -27,28 +28,27 @@ export const privateRoute = ({Component, redirectTo}: RouteProps) => {
 	return React.memo(PrivateRoute);
 };
 
-// export const serverSidePrivateRoute = (gssp: GetServerSideProps) => {
-// 	return async (ctx: GetServerSidePropsContext) => {
-// 		const auth = (await import('utils/admin.firebase')).auth;
-// 		let cookies = ctx.req.cookies;
+export const serverSidePrivateRoute = (gssp: GetServerSideProps) => {
+	return async (ctx: GetServerSidePropsContext) => {
+		let cookie = ctx.req.cookies['user'];
+		if(cookie){
+			// let token = await auth.verifySessionCookie(cookie as string)
+			// console.log('token',token)
+			const result = await auth.currentUser?.getIdTokenResult()
+			console.log('claims', result)
+			console.log(cookie === ctx.req.headers.cookie?.split('user=')[1])
+		}
+			
 
-// 		console.log(cookies.user)
-// 		if (ctx.req.headers.cookie)
-// 			return {
-// 				redirect: {
-// 					permanent: false,
-// 					destination: '/auth/signin',
-// 				},
-// 			};
-// 		// if (auth.currentUser.role !== 'admin')
-// 		// 	return {
-// 		// 		redirect: {
-// 		// 			permanent: false,
-// 		// 			destination: '/',
-// 		// 		},
-// 		// 	};
-// 		return gssp(ctx);
-// 	};
-// };
+		if (!ctx.req.headers.cookie)
+			return {
+				redirect: {
+					permanent: false,
+					destination: '/auth/signin',
+				},
+			};
+		return gssp(ctx);
+	};
+};
 
 export default privateRoute;

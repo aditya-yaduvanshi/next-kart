@@ -64,7 +64,7 @@ const Nav: React.FC = () => {
 									onClick={() => signout()}
 									className={styles.nav_link}
 								>
-									Sign Out <FaSignOutAlt size='16' />
+									<span className={styles.link_text}>Sign Out</span> <FaSignOutAlt size='16' />
 								</NavLink>
 							</li>
 						</>
@@ -73,12 +73,12 @@ const Nav: React.FC = () => {
 							<>
 								<li className={styles.nav_item}>
 									<NavLink href='/auth/signin' className={styles.nav_link}>
-										Sign In <FaSignInAlt size='16' />
+										<span className={styles.link_text}>Sign In</span> <FaSignInAlt size='16' />
 									</NavLink>
 								</li>
 								<li className={styles.nav_item}>
 									<NavLink href='/auth/register' className={styles.nav_link}>
-										Register <FaEdit size='16' />
+										<span className={styles.link_text}>Register</span> <FaEdit size='16' />
 									</NavLink>
 								</li>
 							</>
@@ -86,7 +86,7 @@ const Nav: React.FC = () => {
 					)}
 					<li className={styles.nav_item}>
 						<NavLink href="#cart" className={styles.nav_link} onClick={toggleSiderCart}>
-							Cart <FaShoppingCart size='16' />
+							<span className={styles.link_text}>Cart</span> <FaShoppingCart size='16' />
 						</NavLink>
 					</li>
 				</ul>

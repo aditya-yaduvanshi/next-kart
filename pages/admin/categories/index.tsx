@@ -2,7 +2,7 @@ import Img from 'components/img';
 import Modal from 'components/modal';
 import { CATEGORIES_URL } from 'constants/urls';
 import CategoryProvider, { useCategories } from 'contexts/categories';
-import { protectedRoute } from 'hoc/protected-route';
+import { protectedRoute } from 'hoc/ProtectedRoute';
 import {NextPage} from 'next';
 import Head from 'next/head';
 import React, { useState } from 'react';

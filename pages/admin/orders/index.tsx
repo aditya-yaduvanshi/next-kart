@@ -1,4 +1,4 @@
-import { protectedRoute } from 'hoc/protected-route';
+import { protectedRoute } from 'hoc/ProtectedRoute';
 import {NextPage} from 'next';
 import Head from 'next/head';
 import React from 'react';

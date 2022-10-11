@@ -1,5 +1,5 @@
-import privateRoute from 'hoc/private-route';
-import {NextPage} from 'next';
+import privateRoute, { serverSidePrivateRoute } from 'hoc/PrivateRoute';
+import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import React from 'react';
 
 const Orders: NextPage = () => {
@@ -11,3 +11,9 @@ const Orders: NextPage = () => {
 };
 
 export default privateRoute({Component: React.memo(Orders)}); 
+
+export const getServerSideProps: GetServerSideProps = serverSidePrivateRoute(async (ctx: GetServerSidePropsContext) => {
+	return {
+		props: {}
+	}
+});

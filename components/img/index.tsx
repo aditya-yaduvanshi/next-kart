@@ -3,11 +3,11 @@ import Image, {ImageProps} from 'next/image';
 
 interface ImgProps extends ImageProps {};
 
-const Img: React.FC<ImgProps> = ({className, ...rest}) => {
+const Img: React.FC<ImgProps> = ({className, alt, ...rest}) => {
 	return (
 		<>
       <span className={"flex justify-center items-center " + className}>
-			  <Image {...rest} />
+			  <Image alt={alt ?? ''} {...rest} />
       </span>
 		</>
 	);

@@ -58,17 +58,13 @@ const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		let EXPIRES_IN = 5 * 60 * 60 * 1000;
 
-		let claimedToken = body.token;
 		let customClaim;
 
 		if(body.type === 'register'){
 			customClaim = {
 				role: claim.email === 'admin@nextkart.com' ? 'admin' : 'customer',
 			};
-			[claimedToken] = await Promise.all([
-				auth.createCustomToken(claim.uid, customClaim),
-				auth.setCustomUserClaims(claim.uid, customClaim),
-			]);
+			await auth.setCustomUserClaims(claim.uid, customClaim);
 		}
 
 		let options = {
@@ -77,7 +73,7 @@ const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
 			secure: process.env.NODE_ENV === 'production',
 			path: '/',
 		};
-		let [cookie, authUser] = await Promise.all([auth.createSessionCookie(claimedToken, {
+		let [cookie, authUser] = await Promise.all([auth.createSessionCookie(body.token, {
 			expiresIn: EXPIRES_IN,
 		}), await auth.getUser(claim.uid)]);
 

@@ -3,7 +3,7 @@ import ProductCard from 'components/product-card';
 import Spinner from 'components/spinner';
 import {PRODUCTS_URL} from 'constants/urls';
 import ProductProvider, {IProduct, useProducts} from 'contexts/products';
-import {protectedRoute} from 'hoc/protected-route';
+import {protectedRoute} from 'hoc/ProtectedRoute';
 import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import Head from 'next/head';
 import {useRouter} from 'next/router';
@@ -24,7 +24,7 @@ const AdminProducts: React.FC<ProductListProps> = (props) => {
 
 	useEffect(() => {
 		getProducts({page, limit: 20});
-	}, [page]);
+	}, [page, getProducts]);
 
 	return (
 		<>

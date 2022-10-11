@@ -15,7 +15,7 @@ const Products: NextPage = () => {
 
 	useEffect(() => {
 		getProducts({page, limit: 20});
-	}, [page]);
+	}, [page, getProducts]);
 
 	// useEffect(() => {
 	// 	fetch('https://fakestoreapi.com/products')
