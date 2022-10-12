@@ -1,0 +1,12 @@
+.button {
+  @apply flex justify-center items-center py-2 px-5 gap-2 border-transparent border;
+  @apply rounded hover:shadow-lg hover:shadow-black;
+}
+
+.primary {
+  @apply bg-zinc-600 hover:shadow-zinc-300 text-white;
+}
+
+.danger {
+  @apply bg-red-500 hover:shadow-red-300 text-white;
+}

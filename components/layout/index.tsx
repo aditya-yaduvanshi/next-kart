@@ -1,4 +1,4 @@
-import React, {PropsWithChildren} from 'react';
+import React, {PropsWithChildren, useState} from 'react';
 import Nav from 'components/nav';
 import Sider from 'components/sider';
 import {useAuth} from 'contexts/auth';
@@ -9,24 +9,25 @@ import CartSider from 'components/cart-sider';
 
 const Layout: React.FC<PropsWithChildren> = ({children}) => {
 	const {user} = useAuth();
+	const [sider, setSider] = useState(false);
+	const [cart, setCart] = useState(false);
 	return (
 		<>
 			<div className={styles.layout}>
 				<CartProvider>
-					<SiderProvider>
-						<Nav />
-					</SiderProvider>
+					<Nav
+						onToggle={() => setSider((current) => !current)}
+						onCart={() => setCart((current) => !current)}
+					/>
 				</CartProvider>
 				<main className={styles.main}>
-					{user && (
-						<SiderProvider>
-							<Sider className={styles.sider} />
-						</SiderProvider>
-					)}
+					{user && <Sider className={styles.sider} state={sider} />}
 					<section className={styles.page}>{children}</section>
-					<CartProvider>
-						<CartSider />
-					</CartProvider>
+					{cart && (
+						<CartProvider>
+							<CartSider />
+						</CartProvider>
+					)}
 				</main>
 			</div>
 		</>

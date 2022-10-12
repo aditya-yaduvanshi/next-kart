@@ -12,6 +12,7 @@ import React, {
 	PropsWithChildren,
 	useCallback,
 	useContext,
+	useEffect,
 	useState,
 } from 'react';
 import {auth} from 'utils/firebase';
@@ -60,6 +61,21 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [user, setUser] = useState<IAuthContext['user']>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>();
+
+	useEffect(() => {
+		auth.onIdTokenChanged(async (user) => {
+			if (!user) return;
+			let result = await user.getIdTokenResult();
+			setUser({
+				name: user.displayName,
+				email: user.email,
+				phone: user.phoneNumber,
+				avatar: user.photoURL,
+				uid: user.uid,
+				role: result.claims.role,
+			});
+		});
+	}, [auth]);
 
 	const claimUser: IAuthContext['claimUser'] = useCallback(
 		async (user, type) => {
@@ -142,9 +158,10 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	}, [claimUser, signInWithPopup, google, auth]);
 
 	const signout = useCallback(async () => {
+		await fetch(USERS_URL);
 		await signOut(auth);
 		setUser(null);
-	}, []);
+	}, [USERS_URL, signOut]);
 
 	return (
 		<>
@@ -157,7 +174,7 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 					signout,
 					signin,
 					googleSignin,
-					register
+					register,
 				}}
 			>
 				{children}

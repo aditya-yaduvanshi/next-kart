@@ -1,0 +1,31 @@
+.wrapper {
+  @apply p-5 flex flex-col gap-5 min-w-[180px] sm:w-[446px];
+}
+
+.section1 {
+  @apply flex flex-col sm:flex-row sm:justify-between gap-3;
+}
+
+.inputs {
+  @apply flex flex-col gap-[7px] w-full;
+}
+
+.section2 {
+  @apply flex flex-col gap-4;
+}
+
+.images {
+  @apply grid grid-cols-2 sm:grid-cols-4 gap-2;
+}
+
+.delete_icon {
+  @apply absolute top-1 right-1;
+}
+
+.add_img_btn {
+  @apply p-5 border border-slate-300 relative rounded-md overflow-hidden flex justify-center items-center hover:border-slate-500 active:border-zinc-200 aspect-square;
+}
+
+.footer {
+  @apply flex justify-between items-center border-t px-5 py-3;
+}

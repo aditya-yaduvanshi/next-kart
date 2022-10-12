@@ -20,13 +20,13 @@ export const useSider = () => {
 const SiderProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [sider, setSider] = useState(false);
 
-	const toggleSider = () => {
+	const toggleSider = useCallback(() => {
 		setSider((prev) => !prev);
-	}
+	}, []);
 
 	return (
 		<>
-			<SiderContext.Provider value={{state: sider, toggleSider}}>
+			<SiderContext.Provider value={{state: !!sider, toggleSider}}>
 				{children}
 			</SiderContext.Provider>
 		</>

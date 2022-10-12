@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #__next {
-  @apply bg-white h-screen w-screen;
+html, body, #modal-root {
+  @apply bg-white h-screen w-screen overflow-hidden;
 }
 
 #__next {
-  @apply text-black;
+  @apply h-full;
 }

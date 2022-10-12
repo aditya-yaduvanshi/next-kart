@@ -7,17 +7,15 @@ import {FaSitemap, FaList, FaShoppingBag} from 'react-icons/fa'
 
 type SiderProps = {
 	className?: string;
+	state: boolean;
 };
 
-const Sider: React.FC<SiderProps> = ({className}) => {
-	const {state} = useSider();
+const Sider: React.FC<SiderProps> = ({className, state}) => {
 	const {user} = useAuth();
-
-	//if(!state) return <></>;
 
 	return (
 		<>
-			<aside className={`${styles.sider} ${className}`}>
+			<aside className={`${styles.sider} ${state ? '' : 'hidden'} ${className}`}>
 				<ul>
 					{user && (user.role === 'admin' ? (
 						<>
@@ -33,9 +31,6 @@ const Sider: React.FC<SiderProps> = ({className}) => {
 						</>
 					) : (
 						<>
-							<li className={styles.sider_item}>
-								<NavLink href='/products' className={styles.sider_link}>Products</NavLink>
-							</li>
 							<li className={styles.sider_item}>
 								<NavLink href='/orders' className={styles.sider_link}>Orders</NavLink>
 							</li>

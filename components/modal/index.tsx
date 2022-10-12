@@ -1,33 +1,36 @@
-import React, {PropsWithChildren, useCallback, useEffect, useRef, useState} from 'react';
+import React, {PropsWithChildren} from 'react';
 import ReactDOM from 'react-dom';
+import styles from './modal.module.css';
+import {GrFormClose} from 'react-icons/gr';
 
 interface ModalProps extends PropsWithChildren {
-  show: boolean;
-  onClose: () => void;
+	show: boolean;
+	onClose: () => void;
+	headerTitle?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({children, show, onClose}) => {
-	const [browser, setBrowser] = useState(false);
-  const modalRef = useRef() as React.RefObject<HTMLDivElement>;
+const Modal: React.FC<ModalProps> = ({
+	children,
+	show,
+	onClose,
+	headerTitle,
+}) => {
+	if (typeof window === 'undefined') return null;
 
-  const handleBackDropClick = useCallback((e: MouseEvent) => {
-    if(!modalRef.current?.contains(e.target as Node)) return;
-    onClose();
-  }, [onClose, modalRef]);
-
-	useEffect(() => {
-		setBrowser(true);
-    window.addEventListener('click', handleBackDropClick);
-
-    return window.removeEventListener('click', handleBackDropClick);
-	}, [handleBackDropClick]);
-
-	if (!browser) return null;
-
-	return ReactDOM.createPortal(show &&
-		<div className='absolute top-0 bottom-0 right-0 left-0 bg-black bg-opacity-75 flex justify-center items-center z-50'>
-			<div className='border border-zinc-600' ref={modalRef}>{children}</div>
-		</div>,
+	return ReactDOM.createPortal(
+		show && (
+			<div className={styles.modal} onClick={onClose}>
+				<div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+					<section className={styles.header}>
+						<h3>{headerTitle}</h3>
+						<button onClick={onClose}>
+							<GrFormClose size='30' />
+						</button>
+					</section>
+					<section className={styles.content}>{children}</section>
+				</div>
+			</div>
+		),
 		document.getElementById('modal-root')!
 	);
 };

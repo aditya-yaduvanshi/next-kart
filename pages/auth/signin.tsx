@@ -6,6 +6,7 @@ import styles from './auth.module.css';
 import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
 import Spinner from 'components/spinner';
+import Button from 'components/button';
 
 const Signin: NextPage = () => {
 	const emailRef = useRef<HTMLInputElement | null>(null);
@@ -58,20 +59,20 @@ const Signin: NextPage = () => {
 							autoComplete='off'
 						/>
 						{error ? <p className={styles.error}>{error}</p> : null}
-						<button
+						<Button
 							type='submit'
-							className={`${styles.button} ${styles.submit}`}
+							variant='primary'
 						>
 							Submit
-						</button>
+						</Button>
 					</form>
 					<hr className={styles.line} />
-					<button
+					<Button
 						onClick={googleSignin}
-						className={`${styles.button} ${styles.google}`}
+						variant='danger'
 					>
 						<FaGoogle size='20' /> <span>Signin With Google</span>
-					</button>
+					</Button>
 				</div>
 			</section>
 		</>

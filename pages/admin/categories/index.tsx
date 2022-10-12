@@ -1,11 +1,14 @@
+import Button from 'components/button';
 import Img from 'components/img';
+import Input, { InputFile } from 'components/input';
 import Modal from 'components/modal';
-import { CATEGORIES_URL } from 'constants/urls';
+import { CATEGORIES_URL, USERS_URL } from 'constants/urls';
 import CategoryProvider, { useCategories } from 'contexts/categories';
 import { protectedRoute } from 'hoc/ProtectedRoute';
-import {NextPage} from 'next';
+import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import Head from 'next/head';
 import React, { useState } from 'react';
+import { auth } from 'utils/admin.firebase';
 
 interface CategoriesProps {
 	categories: [];
@@ -13,7 +16,7 @@ interface CategoriesProps {
 
 const Categories: React.FC<CategoriesProps> = (props) => {
 	const {categories} = useCategories();
-	const categoryList = typeof window === 'undefined' ? props.categories : categories;
+	const categoryList = props.categories;
 	const [show, setShow] = useState(false);
 	return (
 		<>
@@ -32,8 +35,14 @@ const Categories: React.FC<CategoriesProps> = (props) => {
 					))}
 				</section>
 			</div>
-			<Modal show={show} onClose={() => setShow(false)}>
-				<div>modal is working</div>
+			<Modal show={show} onClose={() => setShow(false)} headerTitle="Add New Category">
+				<form>
+					<div className='p-5 flex flex-col gap-2'>
+						<InputFile onUpload={(file) => file} iconSize={100} required name="image" />
+						<Input type="text" required name="name" placeholder='Category Name' />
+					</div>
+					<Button variant='primary' type="submit">Submit</Button>
+				</form>
 			</Modal>
 		</>
 	);
@@ -49,9 +58,42 @@ const CategoryList: NextPage<CategoriesProps> = (props) => {
 	)
 }
 
-export const getInitialProps = async () => {
+// export const getInitialProps = async () => {
+// 	try {
+// 		console.log('get initial')
+// 		const res = await fetch(CATEGORIES_URL);
+// 		if (res.status === 200) {
+// 			let result = await res.json();
+// 			console.log(result);
+// 			return {
+// 				props: {categories: result},
+// 			};
+// 		}
+// 	} catch (err) {}
+// 	return {
+// 		props: {},
+// 	};
+// }
+
+export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+	const cookie = ctx.req.cookies['user'];
+
+	if (!cookie)
+		return {
+			redirect: {
+				destination: '/auth/signin?redirect=/admin/dashboard',
+				permanent: false,
+			},
+		};
 	try {
-		console.log('get initial')
+		let claim = await auth.verifySessionCookie(cookie);
+		if (claim.role !== 'admin')
+			return {
+				redirect: {
+					destination: '/products',
+					permanent: false,
+				},
+			};
 		const res = await fetch(CATEGORIES_URL);
 		if (res.status === 200) {
 			let result = await res.json();
@@ -60,10 +102,18 @@ export const getInitialProps = async () => {
 				props: {categories: result},
 			};
 		}
-	} catch (err) {}
-	return {
-		props: {},
-	};
+		return {
+			props: {},
+		};
+	} catch (err) {
+		await fetch(USERS_URL);
+		return {
+			redirect: {
+				destination: '/auth/signin?redirect=/admin/dashboard',
+				permanent: false,
+			},
+		};
+	}
 }
 
 export default protectedRoute({Component: React.memo(CategoryList)});

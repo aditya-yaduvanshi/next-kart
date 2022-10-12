@@ -115,7 +115,7 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 		<>
 			<CartContext.Provider
 				value={{
-					state: cartSider,
+					state: !!cartSider,
 					toggleSiderCart,
 					cart: [...cart],
 					increaseQuantity,

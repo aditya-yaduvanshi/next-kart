@@ -3,7 +3,7 @@
 }
 
 .main {
-  @apply h-full pb-14 flex bg-zinc-200;
+  @apply h-full pb-14 flex bg-zinc-200 relative;
 }
 
 .sider {

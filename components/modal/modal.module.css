@@ -1,0 +1,15 @@
+.modal {
+  @apply absolute top-0 bottom-0 right-0 left-0 bg-black bg-opacity-75 flex justify-center items-center z-50 overflow-y-auto overflow-x-hidden;
+}
+
+.popup {
+  @apply border border-zinc-600 bg-white rounded overflow-hidden mt-40 mb-10;
+}
+
+.header {
+  @apply flex justify-between items-center py-3 px-5 border-b border-slate-300 font-semibold text-lg;
+}
+
+.content {
+  @apply relative w-full;
+}

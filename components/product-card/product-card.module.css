@@ -1,6 +1,6 @@
 .card {
-  @apply rounded border hover:border-slate-400 shadow-lg;
-  @apply p-2 cursor-pointer;
+  @apply rounded border hover:border-slate-400 shadow-lg bg-white;
+  @apply p-2 cursor-pointer max-h-96;
 }
 
 .link {

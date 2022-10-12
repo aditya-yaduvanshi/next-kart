@@ -1,6 +1,7 @@
-import privateRoute, { serverSidePrivateRoute } from 'hoc/PrivateRoute';
+import privateRoute from 'hoc/PrivateRoute';
 import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import React from 'react';
+import { auth } from 'utils/admin.firebase';
 
 const Orders: NextPage = () => {
 	return (
@@ -12,8 +13,28 @@ const Orders: NextPage = () => {
 
 export default privateRoute({Component: React.memo(Orders)}); 
 
-export const getServerSideProps: GetServerSideProps = serverSidePrivateRoute(async (ctx: GetServerSidePropsContext) => {
-	return {
-		props: {}
+export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+	const cookie = ctx.req.cookies['user'];
+	if(!cookie) {
+		return {
+			redirect: {
+				permanent: false,
+				destination: '/auth/signin',
+			},
+		}
 	}
-});
+
+	try {
+		await auth.verifySessionCookie(cookie);
+		return {
+			props: {}
+		}
+	} catch (err) {
+		return {
+			redirect: {
+				permanent: false,
+				destination: '/auth/signin',
+			},
+		}
+	}
+};

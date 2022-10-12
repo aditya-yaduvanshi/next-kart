@@ -12,20 +12,21 @@ import {
 	FaUser,
 } from 'react-icons/fa';
 import {useAuth} from 'contexts/auth';
-import {useSider} from 'contexts/sider';
-import { useCart } from 'contexts/cart';
 
-const Nav: React.FC = () => {
+type NavProps = {
+	onToggle: () => void;
+	onCart: () => void;
+}
+
+const Nav: React.FC<NavProps> = ({onToggle, onCart}) => {
 	const {user, signout, loading} = useAuth();
-	const {toggleSider} = useSider();
-	const {toggleSiderCart} = useCart();
 
 	return (
 		<>
 			<nav className={styles.nav}>
 				<div className={styles.left_container}>
 					{user && (
-						<button className={styles.toggle} onClick={toggleSider}>
+						<button className={styles.toggle} onClick={onToggle}>
 							<FaBars size='28' />
 						</button>
 					)}
@@ -85,9 +86,9 @@ const Nav: React.FC = () => {
 						)
 					)}
 					<li className={styles.nav_item}>
-						<NavLink href="#cart" className={styles.nav_link} onClick={toggleSiderCart}>
+						<button onClick={onCart} className={`${styles.toggle} ${styles.nav_link}`}>
 							<span className={styles.link_text}>Cart</span> <FaShoppingCart size='16' />
-						</NavLink>
+						</button>
 					</li>
 				</ul>
 			</nav>

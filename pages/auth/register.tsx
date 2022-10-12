@@ -6,6 +6,7 @@ import styles from './auth.module.css';
 import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
 import Spinner from 'components/spinner';
+import Button from 'components/button';
 
 const Register: NextPage = () => {
 	const {user, loading, googleSignin, register, error} = useAuth();
@@ -73,20 +74,14 @@ const Register: NextPage = () => {
 						/>
 						{inputError ? <p className={styles.error}>{inputError}</p> : null}
 						{error ? <p className={styles.error}>{error}</p> : null}
-						<button
-							type='submit'
-							className={`${styles.button} ${styles.submit}`}
-						>
+						<Button type='submit' variant='primary'>
 							Submit
-						</button>
+						</Button>
 					</form>
 					<hr className={styles.line} />
-					<button
-						onClick={googleSignin}
-						className={`${styles.button} ${styles.google}`}
-					>
+					<Button onClick={googleSignin} variant='danger'>
 						<FaGoogle size='20' /> <span>Register With Google</span>
-					</button>
+					</Button>
 				</div>
 			</div>
 		</>

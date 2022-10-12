@@ -31,7 +31,8 @@ const getItems = async (req: IRequest, res: NextApiResponse) => {
 		let offset = page * limit > 10 ? page * limit : 0;
 
 		let items = await db
-			.collection(`users/${user.id}/cart`)
+			.collection('carts')
+			.where('user', '==', user.uid)
 			.offset(offset)
 			.limit(limit)
 			.get();
@@ -63,11 +64,11 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 
 		let item = {
 			product: product.ref,
-			user: db.collection('users').doc(user.id),
+			user: user.uid,
 			quantity: body.quantity ?? 1,
 		};
 
-		let itemRef = db.collection(`users/${user.id}/cart`).doc();
+		let itemRef = db.collection('carts').doc();
 
 		await itemRef.create({
 			...item,

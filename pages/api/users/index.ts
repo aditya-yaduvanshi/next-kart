@@ -1,6 +1,5 @@
-import {IUser} from 'contexts/auth';
 import type {NextApiHandler, NextApiRequest, NextApiResponse} from 'next';
-import {db, auth} from 'utils/admin.firebase';
+import {auth} from 'utils/admin.firebase';
 import {serialize} from 'cookie';
 
 interface IClaim {
@@ -8,43 +7,7 @@ interface IClaim {
 	type: 'register' | 'signin';
 }
 
-// const postUser = async (req: NextApiRequest, res: NextApiResponse) => {
-// 	try {
-// 		const body = req.body as IUser;
-
-// 		let snaps = await db
-// 			.collection('users')
-// 			.where('email', '==', body.email)
-// 			.get();
-
-// 		if (snaps.docs.length)
-// 			return res.status(400).json({error: 'User already exists!'});
-
-// 		let user = {
-// 			...body,
-// 			role: body.email === 'admin@nextkart.com' ? 'admin' : 'customer',
-// 		};
-// 		await auth.setCustomUserClaims(user.uid, {
-// 			role: user.email === 'admin@nextkart.com' ? 'admin' : 'customer',
-// 		});
-// 		let userRef = db.collection('users').doc();
-// 		await userRef.create(user);
-// 		user.id = userRef.id;
-
-// 		res.setHeader(
-// 			'set-cookie',
-// 			`user=${JSON.stringify(user)}; path=/; samesite=lax; httponly;`
-// 		);
-
-// 		res.setHeader('Location', userRef.id);
-
-// 		return res.status(201).end();
-// 	} catch (err) {
-// 		return res.status(400).json({error: (err as Error).message});
-// 	}
-// };
-
-const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
+const createSession = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const body = req.body as IClaim;
 		if (!body.token)
@@ -60,7 +23,7 @@ const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		let customClaim;
 
-		if(body.type === 'register'){
+		if (body.type === 'register') {
 			customClaim = {
 				role: claim.email === 'admin@nextkart.com' ? 'admin' : 'customer',
 			};
@@ -73,9 +36,12 @@ const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
 			secure: process.env.NODE_ENV === 'production',
 			path: '/',
 		};
-		let [cookie, authUser] = await Promise.all([auth.createSessionCookie(body.token, {
-			expiresIn: EXPIRES_IN,
-		}), await auth.getUser(claim.uid)]);
+		let [cookie, authUser] = await Promise.all([
+			auth.createSessionCookie(body.token, {
+				expiresIn: EXPIRES_IN,
+			}),
+			await auth.getUser(claim.uid),
+		]);
 
 		res.setHeader('set-cookie', serialize('user', cookie, options));
 		return res.status(200).json({
@@ -91,10 +57,17 @@ const claimUser = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 };
 
+const clearSession = async (req: NextApiRequest, res: NextApiResponse) => {
+	res.setHeader('set-cookie', serialize('user', '', {maxAge: -1, path: '/'}));
+	return res.status(204).end();
+};
+
 const handler: NextApiHandler = async (req, res) => {
 	switch (req.method) {
+		case 'GET':
+			return await clearSession(req, res);
 		case 'POST':
-			return await claimUser(req, res);
+			return await createSession(req, res);
 		default: {
 			return res.status(405).end();
 		}

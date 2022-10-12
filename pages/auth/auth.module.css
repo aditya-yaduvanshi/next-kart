@@ -18,20 +18,12 @@
   @apply max-w-xs;
 }
 
-.button {
-  @apply flex justify-center items-center mt-5 p-2 gap-2 border-transparent border text-white rounded hover:shadow-lg active:border-zinc-200;
-}
-
 .loader {
   @apply absolute w-full h-full;
 }
 
 .submit {
   @apply bg-zinc-600 hover:shadow-zinc-300;
-}
-
-.google {
-  @apply bg-red-500 w-full hover:shadow-red-300;
 }
 
 .error {
