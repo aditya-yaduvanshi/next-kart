@@ -24,7 +24,9 @@ const Layout: React.FC<PropsWithChildren> = ({children}) => {
 					</CartProvider>
 				)}
 				<main className={styles.main}>
-					{user && <Sider className={`${styles.sider} ${sider ? '' : 'hidden'}`} />}
+					{user && (
+						<Sider className={`${styles.sider} ${sider ? '' : 'hidden'}`} />
+					)}
 					<section className={styles.page}>{children}</section>
 					{user && (
 						<CartProvider>

@@ -22,9 +22,7 @@ const CartSider: React.FC<CartSiderProps> = ({open}) => {
 
 	useEffect(() => {
 		(async () => await getCartItems({page: 1, limit: 20}))();
-	},[])
-
-	console.log(cart)
+	},[getCartItems]);
 
 	return (
 		<>

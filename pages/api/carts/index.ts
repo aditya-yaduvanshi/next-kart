@@ -78,7 +78,9 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 		});
 
 		res.setHeader('Location', itemRef.id);
-		return res.status(201).json({id: itemRef.id, ...item, product: product.id, price});
+		let data = {id: itemRef.id, ...item, product: product.id, price}
+		console.log('cart api', data);
+		return res.status(201).json(data);
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}

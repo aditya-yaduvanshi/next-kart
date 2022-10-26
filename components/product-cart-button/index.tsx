@@ -1,3 +1,4 @@
+import Alert from 'components/alert';
 import Button from 'components/button';
 import Spinner from 'components/spinner';
 import {useCart} from 'contexts/cart';
@@ -22,8 +23,9 @@ const ProductCartButton: React.FC<ProductCartButtonProps> = ({productId}) => {
 	return (
 		<>
 			<Button disabled={loading} onClick={() => handleCart()} variant='primary'>
-				{loading ? <Spinner/> : incart ? 'Remove From Cart' : 'Add To Cart'}
+				{loading ? <Spinner className='bg-transparent text-[1em]' /> : incart ? 'Remove From Cart' : 'Add To Cart'}
 			</Button>
+			{error ? <Alert type='error'>{error}</Alert> : null}
 		</>
 	);
 };

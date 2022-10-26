@@ -16,7 +16,7 @@ type ProductDetailProps = {
 const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 	const product = props.product;
 
-	if(!props.product) return <></>;
+	if (!props.product) return <></>;
 
 	return (
 		<>
@@ -71,7 +71,6 @@ const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 						</div>
 					</div>
 				</section>
-				<section></section>
 			</div>
 		</>
 	);
@@ -94,14 +93,14 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
 		`${PRODUCTS_URL}/${(params?.slug as string)?.split('_')[1]}`
 	);
 	let result;
-	if(res.status === 200){
+	if (res.status === 200) {
 		result = {
 			product: await res.json(),
-		}
-	} else if(res.status === 400){
+		};
+	} else if (res.status === 400) {
 		result = {
 			error: await res.json(),
-		}
+		};
 	}
 	return {
 		props: {...result},
