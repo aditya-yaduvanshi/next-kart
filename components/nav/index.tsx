@@ -12,14 +12,16 @@ import {
 	FaUser,
 } from 'react-icons/fa';
 import {useAuth} from 'contexts/auth';
+import {useRouter} from 'next/router';
 
 type NavProps = {
 	onToggle: () => void;
 	onCart: () => void;
-}
+};
 
 const Nav: React.FC<NavProps> = ({onToggle, onCart}) => {
 	const {user, signout, loading} = useAuth();
+	const {push} = useRouter();
 
 	return (
 		<>
@@ -65,7 +67,8 @@ const Nav: React.FC<NavProps> = ({onToggle, onCart}) => {
 									onClick={() => signout()}
 									className={styles.nav_link}
 								>
-									<span className={styles.link_text}>Sign Out</span> <FaSignOutAlt size='16' />
+									<span className={styles.link_text}>Sign Out</span>
+									<FaSignOutAlt size='16' />
 								</NavLink>
 							</li>
 						</>
@@ -74,20 +77,29 @@ const Nav: React.FC<NavProps> = ({onToggle, onCart}) => {
 							<>
 								<li className={styles.nav_item}>
 									<NavLink href='/auth/signin' className={styles.nav_link}>
-										<span className={styles.link_text}>Sign In</span> <FaSignInAlt size='16' />
+										<span className={styles.link_text}>Sign In</span>
+										<FaSignInAlt size='16' />
 									</NavLink>
 								</li>
 								<li className={styles.nav_item}>
 									<NavLink href='/auth/register' className={styles.nav_link}>
-										<span className={styles.link_text}>Register</span> <FaEdit size='16' />
+										<span className={styles.link_text}>Register</span>
+										<FaEdit size='16' />
 									</NavLink>
 								</li>
 							</>
 						)
 					)}
 					<li className={styles.nav_item}>
-						<button onClick={onCart} className={`${styles.toggle} ${styles.nav_link}`}>
-							<span className={styles.link_text}>Cart</span> <FaShoppingCart size='16' />
+						<button
+							onClick={() => {
+								if (!user) push('/auth/signin');
+								else onCart();
+							}}
+							className={`${styles.toggle} ${styles.nav_link}`}
+						>
+							<span className={styles.link_text}>Cart</span>
+							<FaShoppingCart size='16' />
 						</button>
 					</li>
 				</ul>

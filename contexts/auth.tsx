@@ -31,25 +31,19 @@ export interface IUser {
 	role?: Role;
 	avatar?: string | null;
 	uid: string;
+	token?: string | null;
 }
 
 export interface IAuthContext {
 	user: IUser | null;
 	loading: boolean;
-	error?: string;
+	error: string;
 	signout: () => Promise<void>;
 	claimUser: (user: User, type: ClaimType) => Promise<void>;
 	signin: (email: string, password: string) => Promise<void>;
 	register: (email: string, password: string) => Promise<void>;
 	googleSignin: () => Promise<void>;
 }
-
-export const getHeaders = (token: string) => {
-	return {
-		'Content-Type': 'application/json',
-		'Authorization': token,
-	};
-};
 
 const AuthContext = createContext<IAuthContext | null>(null);
 
@@ -60,40 +54,80 @@ export const useAuth = () => {
 const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const [user, setUser] = useState<IAuthContext['user']>(null);
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string>();
+	const [error, setError] = useState<string>('');
 
 	useEffect(() => {
-		auth.onIdTokenChanged(async (user) => {
-			if (!user) return;
-			let result = await user.getIdTokenResult();
-			setUser({
-				name: user.displayName,
-				email: user.email,
-				phone: user.phoneNumber,
-				avatar: user.photoURL,
-				uid: user.uid,
-				role: result.claims.role,
-			});
-		});
-	}, [auth]);
+		if (!error) return;
+		let timeout = setTimeout(() => setError(''), 5000);
+		return () => clearTimeout(timeout);
+	}, [error]);
 
 	const claimUser: IAuthContext['claimUser'] = useCallback(
-		async (user, type) => {
+		async (authUser, type) => {
 			try {
 				setLoading(true);
-				let token = await user.getIdToken();
+				let token = await authUser.getIdToken();
 				const res = await fetch(USERS_URL, {
 					method: 'POST',
 					body: JSON.stringify({
-						token,
+						token: token,
 						type,
 					}),
-					headers: getHeaders(token),
+					headers: {
+						'Content-Type': 'application/json',
+					},
 				});
 				switch (res.status) {
 					case 200: {
 						const result = (await res.json()) as IUser;
-						setUser(result);
+						setUser((current) => {
+							if (!current) return result;
+							return {...current, ...result};
+						});
+						setLoading(false);
+						return;
+					}
+					case 400: {
+						let result = await res.json();
+						console.log(result)
+						setError(result.error as string);
+						setLoading(false);
+						return;
+					}
+					default: {
+						setError('Something Went Wrong! Please try again later!');
+						setLoading(false);
+						return;
+					}
+				}
+			} catch (err) {
+				setError('Something Went Wrong! Please try again later!');
+				setLoading(false);
+			}
+		},
+		[USERS_URL]
+	);
+
+	const updateSession = useCallback(
+		async (authUser: User) => {
+			try {
+				setLoading(true);
+				let token = await authUser.getIdToken();
+				const res = await fetch(USERS_URL, {
+					method: 'PUT',
+					body: JSON.stringify({
+						token: token,
+					}),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				switch (res.status) {
+					case 204: {
+						setUser((current) => {
+							if (!current) return null;
+							return {...current, token};
+						});
 						setLoading(false);
 						return;
 					}
@@ -110,24 +144,26 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 					}
 				}
 			} catch (err) {
+				setError('Something Went Wrong! Please try again later!');
 				setLoading(false);
-				console.log((err as Error).message);
 			}
 		},
-		[USERS_URL, getHeaders]
+		[USERS_URL]
 	);
 
 	const register: IAuthContext['register'] = useCallback(
 		async (email, password) => {
 			try {
+				setLoading(true);
 				const {user} = await createUserWithEmailAndPassword(
 					auth,
 					email,
 					password
 				);
 				await claimUser(user, 'register');
+				setLoading(false);
 			} catch (err) {
-				setError((err as Error).message);
+				setError('Something Went Wrong! Please try again later!');
 				setLoading(false);
 			}
 		},
@@ -137,10 +173,12 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	const signin: IAuthContext['signin'] = useCallback(
 		async (email, password) => {
 			try {
+				setLoading(true);
 				const {user} = await signInWithEmailAndPassword(auth, email, password);
 				await claimUser(user, 'signin');
+				setLoading(false);
 			} catch (err) {
-				setError((err as Error).message);
+				setError('Something Went Wrong! Please try again later!');
 				setLoading(false);
 			}
 		},
@@ -149,8 +187,10 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 
 	const googleSignin: IAuthContext['googleSignin'] = useCallback(async () => {
 		try {
+			setLoading(true);
 			const {user} = await signInWithPopup(auth, google);
 			await claimUser(user, 'register');
+			setLoading(false);
 		} catch (err) {
 			setError((err as Error).message);
 			setLoading(false);
@@ -158,10 +198,33 @@ const AuthProvider: React.FC<PropsWithChildren> = ({children}) => {
 	}, [claimUser, signInWithPopup, google, auth]);
 
 	const signout = useCallback(async () => {
+		setLoading(true);
 		await fetch(USERS_URL);
 		await signOut(auth);
 		setUser(null);
-	}, [USERS_URL, signOut]);
+		setLoading(false);
+	}, [USERS_URL, signOut, auth]);
+
+	useEffect(() => {
+		let unsubscribe = auth.onIdTokenChanged(async (currentUser) => {
+			if (!currentUser) return;
+			let [token, result] = await Promise.all([currentUser.getIdToken(), currentUser.getIdTokenResult()]);
+			if(!user) {
+				setUser({
+					name: currentUser.displayName,
+					email: currentUser.email,
+					phone: currentUser.phoneNumber,
+					avatar: currentUser.photoURL,
+					uid: currentUser.uid,
+					role: result.claims.role,
+					token,
+				});
+			}
+			if (token === user?.token) return;
+			await updateSession(currentUser);
+		});
+		return () => unsubscribe();
+	}, [auth, updateSession]);
 
 	return (
 		<>

@@ -1,21 +1,19 @@
 import NavLink from 'components/nav-link';
 import {useAuth} from 'contexts/auth';
-import {useSider} from 'contexts/sider';
 import React from 'react';
 import styles from './sider.module.css';
 import {FaSitemap, FaList, FaShoppingBag} from 'react-icons/fa'
 
 type SiderProps = {
 	className?: string;
-	state: boolean;
 };
 
-const Sider: React.FC<SiderProps> = ({className, state}) => {
+const Sider: React.FC<SiderProps> = ({className}) => {
 	const {user} = useAuth();
 
 	return (
 		<>
-			<aside className={`${styles.sider} ${state ? '' : 'hidden'} ${className}`}>
+			<aside className={`${styles.sider} ${className}`}>
 				<ul>
 					{user && (user.role === 'admin' ? (
 						<>

@@ -1,5 +1,5 @@
 .wrapper {
-  @apply p-5 flex flex-col gap-5 min-w-[180px] sm:w-[446px];
+  @apply p-5 flex flex-col gap-5 min-w-[180px] sm:w-[446px] relative;
 }
 
 .section1 {

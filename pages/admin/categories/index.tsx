@@ -1,49 +1,63 @@
 import Button from 'components/button';
-import Img from 'components/img';
-import Input, { InputFile } from 'components/input';
-import Modal from 'components/modal';
-import { CATEGORIES_URL, USERS_URL } from 'constants/urls';
-import CategoryProvider, { useCategories } from 'contexts/categories';
-import { protectedRoute } from 'hoc/ProtectedRoute';
+import CategoryCard from 'components/category-card';
+import CategoryForm from 'components/category-form';
+import {CATEGORIES_URL} from 'constants/urls';
+import CategoryProvider, {
+	ICategory,
+	ICategoryContext,
+	useCategories,
+} from 'contexts/categories';
+import withServerSideAdmin from 'hoc/withServerSideAdmin';
+import withServerSideAuth from 'hoc/withServerSideAuth';
 import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import Head from 'next/head';
-import React, { useState } from 'react';
-import { auth } from 'utils/admin.firebase';
+import React, {useCallback, useEffect, useState} from 'react';
+import { FaPlus } from 'react-icons/fa';
 
 interface CategoriesProps {
-	categories: [];
+	categories: ICategoryContext['categories'];
 }
 
 const Categories: React.FC<CategoriesProps> = (props) => {
-	const {categories} = useCategories();
-	const categoryList = props.categories;
+	const {categories, getCategories} = useCategories();
+	const categoryList = categories.length ? categories : props.categories;
 	const [show, setShow] = useState(false);
+	const [formMode, setFormMode] = useState<{edit: boolean; data?: ICategory}>({edit: false});
+
+	const handleEdit = (category: ICategory) => {
+		setFormMode({edit: true, data: category});
+		setShow(true);
+	}
+
+	const handleClose = useCallback(() => {
+		setShow(false);
+		setFormMode({edit: false, data: undefined});
+	},[]);
+
+	useEffect(() => {
+		getCategories();
+	}, []);
+
 	return (
 		<>
 			<Head>
 				<title>Admin | Categories</title>
-				<meta name="description" content='List of available categories.' />
+				<meta name='description' content='List of available categories.' />
 			</Head>
 			<div className='overflow-y-auto h-full pb-10'>
-				<h3>Categories<button onClick={() => setShow(true)}>New Category</button></h3>
-				<section className='gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 p-2 mb-10 relative'>
-					{categoryList?.map(category => (
-						<article key={category.id}>
-							<Img src={category.image} alt={category.name} width="100" height="100" />
-							<h4>{category.name}</h4>
-						</article>
+				<h3 className='flex justify-between items-center py-2 px-5 border-b border-zinc-400 mx-2'>
+					<span className='text-2xl font-semibold'>Categories</span>
+					<Button variant='primary' onClick={() => setShow(true)}>
+						New Category <FaPlus />
+					</Button>
+				</h3>
+				<section className='flex flex-nowrap gap-2 p-2 mb-10 relative'>
+					{categoryList?.map((category) => (
+						<CategoryCard key={category.id} category={category} showEditButton onEdit={handleEdit} />
 					))}
 				</section>
 			</div>
-			<Modal show={show} onClose={() => setShow(false)} headerTitle="Add New Category">
-				<form>
-					<div className='p-5 flex flex-col gap-2'>
-						<InputFile onUpload={(file) => file} iconSize={100} required name="image" />
-						<Input type="text" required name="name" placeholder='Category Name' />
-					</div>
-					<Button variant='primary' type="submit">Submit</Button>
-				</form>
-			</Modal>
+			<CategoryForm show={show} onClose={handleClose} mode={formMode} />
 		</>
 	);
 };
@@ -55,65 +69,26 @@ const CategoryList: NextPage<CategoriesProps> = (props) => {
 				<Categories {...props} />
 			</CategoryProvider>
 		</>
-	)
-}
+	);
+};
 
-// export const getInitialProps = async () => {
-// 	try {
-// 		console.log('get initial')
-// 		const res = await fetch(CATEGORIES_URL);
-// 		if (res.status === 200) {
-// 			let result = await res.json();
-// 			console.log(result);
-// 			return {
-// 				props: {categories: result},
-// 			};
-// 		}
-// 	} catch (err) {}
-// 	return {
-// 		props: {},
-// 	};
-// }
-
-export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
-	const cookie = ctx.req.cookies['user'];
-
-	if (!cookie)
-		return {
-			redirect: {
-				destination: '/auth/signin?redirect=/admin/dashboard',
-				permanent: false,
-			},
-		};
-	try {
-		let claim = await auth.verifySessionCookie(cookie);
-		if (claim.role !== 'admin')
-			return {
-				redirect: {
-					destination: '/products',
-					permanent: false,
-				},
-			};
+export const getServerSideProps: GetServerSideProps = withServerSideAuth(
+	withServerSideAdmin(async function getServerSideProps(
+		ctx: GetServerSidePropsContext
+	) {
 		const res = await fetch(CATEGORIES_URL);
 		if (res.status === 200) {
-			let result = await res.json();
-			console.log(result);
+			const categories = await res.json();
 			return {
-				props: {categories: result},
+				props: {categories},
 			};
 		}
 		return {
 			props: {},
 		};
-	} catch (err) {
-		await fetch(USERS_URL);
-		return {
-			redirect: {
-				destination: '/auth/signin?redirect=/admin/dashboard',
-				permanent: false,
-			},
-		};
-	}
-}
+	},
+	'/products')  as GetServerSideProps,
+	'/admin/categories'
+);
 
-export default protectedRoute({Component: React.memo(CategoryList)});
+export default React.memo(CategoryList);

@@ -1,0 +1,11 @@
+.div {
+  @apply relative z-10 rounded-md;
+}
+
+.upload_btn {
+  @apply border aspect-square border-slate-300 relative rounded-md overflow-hidden flex justify-center items-center hover:border-slate-500 active:border-zinc-200 w-full;
+}
+
+.upload_text {
+  @apply absolute left-1/2 bottom-0 -translate-x-1/2 bg-black w-full bg-opacity-50 text-white py-[1px];
+}

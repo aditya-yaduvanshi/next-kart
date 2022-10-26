@@ -7,7 +7,7 @@
 }
 
 .sider_item {
-  @apply w-full border-b;
+  @apply border-b;
 }
 
 .sider_link {

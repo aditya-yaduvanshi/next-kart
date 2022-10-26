@@ -1,5 +1,5 @@
 import Input from 'components/input';
-import {NextPage} from 'next';
+import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
 import React, {useEffect, useRef, useState} from 'react';
 import {FaGoogle} from 'react-icons/fa';
 import styles from './auth.module.css';
@@ -7,6 +7,9 @@ import {useAuth} from 'contexts/auth';
 import {useRouter} from 'next/router';
 import Spinner from 'components/spinner';
 import Button from 'components/button';
+import Alert from 'components/alert';
+import withServerSidePublic from 'hoc/withServerSidePublic';
+import Link from 'next/link';
 
 const Register: NextPage = () => {
 	const {user, loading, googleSignin, register, error} = useAuth();
@@ -15,7 +18,7 @@ const Register: NextPage = () => {
 	const emailRef = useRef<HTMLInputElement | null>(null);
 	const passwordRef = useRef<HTMLInputElement | null>(null);
 	const password2Ref = useRef<HTMLInputElement | null>(null);
-	const [inputError, setInputError] = useState(error ?? '');
+	const [inputError, setInputError] = useState('');
 
 	useEffect(() => {
 		if (!user) return;
@@ -28,6 +31,7 @@ const Register: NextPage = () => {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		setInputError('');
 		if (!emailRef.current?.value.trim()) return;
 		if (!passwordRef.current?.value.trim()) return;
 		if (passwordRef.current?.value !== password2Ref.current?.value)
@@ -72,14 +76,22 @@ const Register: NextPage = () => {
 							className={styles.input}
 							autoComplete='off'
 						/>
-						{inputError ? <p className={styles.error}>{inputError}</p> : null}
-						{error ? <p className={styles.error}>{error}</p> : null}
-						<Button type='submit' variant='primary'>
+						{error ? <Alert type='error'>{error}</Alert> : null}
+						{inputError ? <Alert type='error'>{inputError}</Alert> : null}
+						<Button type='submit' variant='primary' className={styles.submit}>
 							Submit
 						</Button>
+						<div className={styles.alternate}>
+							<p>Have an account ? </p> <Link href='/auth/signin'>Signin</Link>
+						</div>
 					</form>
+
 					<hr className={styles.line} />
-					<Button onClick={googleSignin} variant='danger'>
+					<Button
+						onClick={googleSignin}
+						variant='danger'
+						className={styles.google}
+					>
 						<FaGoogle size='20' /> <span>Register With Google</span>
 					</Button>
 				</div>

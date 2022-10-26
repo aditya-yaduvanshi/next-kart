@@ -19,15 +19,15 @@ const getItems = async (req: IRequest, res: NextApiResponse) => {
 		const query = req.query as IQuery;
 		const user = req.user;
 
-		if (query.limit != null && typeof query.limit !== 'number')
+		if (query.limit != null && typeof Number(query.limit) !== 'number')
 			return res
 				.status(400)
 				.json({error: 'Limit Should Be A Positive Number!'});
-		if (query.page != null && typeof query.page !== 'number')
+		if (query.page != null && typeof Number(query.page) !== 'number')
 			return res.status(400).json({error: 'Page Should Be A Positive Number!'});
 
-		let page = query.page ?? 1;
-		let limit = query.limit ?? 10;
+		let page = Number(query.page) ? Number(query.page) : 1;
+		let limit = Number(query.limit) ? Number(query.limit) : 10;
 		let offset = page * limit > 10 ? page * limit : 0;
 
 		let items = await db
@@ -62,21 +62,43 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 				.status(400)
 				.json({error: 'Quantity Should Be A Positive Number!'});
 
+		let itemRef = db.collection('carts').doc();
+
 		let item = {
 			product: product.ref,
 			user: user.uid,
 			quantity: body.quantity ?? 1,
 		};
 
-		let itemRef = db.collection('carts').doc();
+		let price = item.quantity * product.get('price');
 
 		await itemRef.create({
 			...item,
-			price: item.quantity * product.get('price'),
+			price,
 		});
 
 		res.setHeader('Location', itemRef.id);
-		return res.status(201).end();
+		return res.status(201).json({id: itemRef.id, ...item, product: product.id, price});
+	} catch (err) {
+		return res.status(400).json({error: (err as Error).message});
+	}
+};
+
+const removeItems = async (req: IRequest, res: NextApiResponse) => {
+	try {
+		const user = req.user;
+		const items = await db
+			.collection('carts')
+			.where('user', '==', user.uid)
+			.get();
+		const batch = db.batch();
+
+		items.docs.forEach((item) => {
+			batch.delete(item.ref);
+		});
+
+		await batch.commit();
+		return res.status(204).end();
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}
@@ -88,6 +110,8 @@ const handler = async (req: IRequest, res: NextApiResponse) => {
 			return await getItems(req, res);
 		case 'POST':
 			return await addItem(req, res);
+		case 'DELETE':
+			return await removeItems(req, res);
 		default:
 			return res.status(405).end();
 	}

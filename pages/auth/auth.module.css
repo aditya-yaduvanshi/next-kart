@@ -11,7 +11,7 @@
 }
 
 .form {
-  @apply flex flex-col gap-3 my-5 overflow-hidden;
+  @apply flex flex-col gap-3 my-5 overflow-hidden break-words;
 }
 
 .input {
@@ -19,17 +19,21 @@
 }
 
 .loader {
-  @apply absolute w-full h-full;
+  @apply absolute w-full h-full bg-white;
 }
 
 .submit {
-  @apply bg-zinc-600 hover:shadow-zinc-300;
-}
-
-.error {
-  @apply text-red-500 max-w-xs py-1 px-2 border border-red-500 bg-white rounded-md font-semibold;
+  @apply mt-5;
 }
 
 .line {
   @apply w-full;
+}
+
+.google {
+  @apply w-full mt-5;
+}
+
+.alternate {
+  @apply flex justify-center items-center gap-3;
 }

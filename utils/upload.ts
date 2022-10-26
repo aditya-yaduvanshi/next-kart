@@ -5,7 +5,6 @@ export const uploadImage = async (image: File, folder: string) => {
 	try {
 		let filename = `${folder}/${new Date().getTime()}.${image.type.split('/')[1]}`;
 		let imageRef = ref(bucket, filename);
-    console.log(filename)
 		await uploadBytes(imageRef, await image.arrayBuffer());
     return {url: await getDownloadURL(imageRef)};
 	} catch (err) {

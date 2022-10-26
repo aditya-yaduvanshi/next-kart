@@ -6,17 +6,23 @@ export interface ButtonProps
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
 		HTMLButtonElement
 	> {
-	variant?: 'primary' | 'danger';
+	variant?: 'primary' | 'danger' | 'success' | 'warning';
+	size?: 'small' | 'medium' | 'large';
 }
 
 const Button: React.FC<ButtonProps> = ({
 	children,
 	className,
 	variant,
+	size = 'medium',
+	...props
 }) => {
 	return (
 		<button
-			className={`${styles.button} ${variant ? styles[variant] : ''} ${className ?? ''}`}
+			className={`${styles.button} ${styles[size]} ${variant ? styles[variant] : ''} ${
+				className ?? ''
+			}`}
+			{...props}
 		>
 			{children}
 		</button>

@@ -2,16 +2,12 @@
   @apply relative z-10 rounded-md;
 }
 
-.input, .textarea {
+.input {
   @apply border border-slate-300 outline-none rounded-md;
   @apply placeholder:text-transparent placeholder:font-normal placeholder:bg-transparent bg-transparent;
   @apply focus:shadow-md hover:border-slate-500;
   @apply w-full h-11 px-3 z-20 pt-2;
   @apply font-medium text-black;
-}
-
-.textarea {
-  @apply placeholder:text-black;
 }
 
 .label {
@@ -37,12 +33,4 @@
 
 .input:-webkit-autofill {
   -webkit-text-fill-color: black !important;
-}
-
-.upload_btn {
-  @apply border aspect-square border-slate-300 relative rounded-md overflow-hidden flex justify-center items-center hover:border-slate-500 active:border-zinc-200 w-full;
-}
-
-.upload_text {
-  @apply absolute left-1/2 bottom-0 -translate-x-1/2 bg-black w-full bg-opacity-50 text-white py-[1px];
 }

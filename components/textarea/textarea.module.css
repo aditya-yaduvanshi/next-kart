@@ -1,0 +1,11 @@
+.div {
+  @apply relative z-10 rounded-md;
+}
+
+.textarea {
+  @apply border border-slate-300 outline-none rounded-md;
+  @apply placeholder:text-transparent placeholder:font-normal placeholder:bg-transparent bg-transparent;
+  @apply focus:shadow-md hover:border-slate-500;
+  @apply w-full h-11 px-3 z-20 pt-2;
+  @apply font-medium text-black placeholder:text-black;;
+}

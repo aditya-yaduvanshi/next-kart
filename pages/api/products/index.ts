@@ -14,12 +14,12 @@ interface IProductQuery extends IQuery {
 const getProducts = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const query = req.query as IProductQuery;
-		if (query.limit != null && typeof query.limit !== 'number')
+		if (query.limit != null && typeof Number(query.limit) !== 'number')
 			return res
 				.status(400)
 				.json({error: 'Limit Should Be A Positive Number!'});
 
-		if (query.page != null && typeof query.page !== 'number')
+		if (query.page != null && typeof Number(query.page) !== 'number')
 			return res.status(400).json({error: 'Page Should Be A Positive Number!'});
 
 		let category;
@@ -32,8 +32,8 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse) => {
 			).docs[0];
 		}
 
-		let page = query.page ?? 1;
-		let limit = query.limit ?? 10;
+		let page = Number(query.page) >= 0 ? Number(query.page) : 1;
+		let limit = Number(query.limit) >= 0 ? Number(query.limit) : 10;
 		let offset = page * limit > 10 ? page * limit : 0;
 
 		let products;
@@ -96,11 +96,14 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 			return res
 				.status(400)
 				.json({error: 'Stock should be a positive number!'});
-			
-		if (typeof body.brand !== 'string')
+
+		if (typeof body.category !== 'string')
 			return res
 				.status(400)
-				.json({error: 'Brand should be a valid text!'});
+				.json({error: 'Category should be a valid id string!'});
+
+		if (typeof body.brand !== 'string')
+			return res.status(400).json({error: 'Brand should be a valid text!'});
 
 		if (body.description && typeof body.description !== 'string')
 			return res
@@ -126,12 +129,15 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 					.json({error: 'Images should be a list of valid image urls!'});
 		}
 
-		let category = await db.collection('categories').doc(body.category).get();
+		let category = await db
+			.collection('categories')
+			.doc(body.category as string)
+			.get();
 		if (!category.exists)
 			return res.status(400).json({error: 'Category is not supported yet!'});
 
 		let productRef = db.collection('products').doc();
-		await productRef.create({
+		let product = {
 			title: body.title,
 			price: body.price,
 			stock: body.stock,
@@ -143,11 +149,19 @@ const addProduct = async (req: IRequest, res: NextApiResponse) => {
 			}`,
 			images: body.images ?? [],
 			category: category.ref,
-		});
+		};
+
+		await productRef.create(product);
 		res.setHeader('Location', productRef.id);
-		return res.status(201).end();
+		return res.status(201).json({
+			id: productRef.id,
+			title: product.title,
+			price: product.price,
+			thumbnail: product.thumbnail,
+			slug: product.slug,
+		});
 	} catch (err) {
-		res.status(400).json({error: (err as Error).message});
+		return res.status(400).json({error: (err as Error).message});
 	}
 };
 
@@ -156,7 +170,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		case 'GET':
 			return await getProducts(req, res);
 		case 'POST':
-			withAuth(withAdmin(addProduct));
+			return await withAuth(withAdmin(addProduct))(req, res);
 		default:
 			return res.status(405).end();
 	}

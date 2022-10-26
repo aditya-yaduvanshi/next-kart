@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import styles from './modal.module.css';
 import {GrFormClose} from 'react-icons/gr';
 
-interface ModalProps extends PropsWithChildren {
+export interface ModalProps extends PropsWithChildren {
 	show: boolean;
 	onClose: () => void;
 	headerTitle?: string;

@@ -7,6 +7,14 @@ interface IClaim {
 	type: 'register' | 'signin';
 }
 
+const EXPIRES_IN = 60 * 60 * 1000;
+const options = {
+	maxAge: EXPIRES_IN,
+	httpOnly: true,
+	secure: process.env.NODE_ENV === 'production',
+	path: '/',
+};
+
 const createSession = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const body = req.body as IClaim;
@@ -19,8 +27,6 @@ const createSession = async (req: NextApiRequest, res: NextApiResponse) => {
 		if (new Date().getTime() / 1000 - claim.auth_time > RECENT_DURATION)
 			return res.status(400).json({error: 'Recent signin is required!'});
 
-		let EXPIRES_IN = 5 * 60 * 60 * 1000;
-
 		let customClaim;
 
 		if (body.type === 'register') {
@@ -30,12 +36,6 @@ const createSession = async (req: NextApiRequest, res: NextApiResponse) => {
 			await auth.setCustomUserClaims(claim.uid, customClaim);
 		}
 
-		let options = {
-			maxAge: EXPIRES_IN,
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			path: '/',
-		};
 		let [cookie, authUser] = await Promise.all([
 			auth.createSessionCookie(body.token, {
 				expiresIn: EXPIRES_IN,
@@ -57,6 +57,23 @@ const createSession = async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 };
 
+const updateSession = async (req: NextApiRequest, res: NextApiResponse) => {
+	try {
+		const body = req.body as IClaim;
+		if (!body.token)
+			return res.status(400).json({error: 'Id token is required!'});
+
+		let cookie = await auth.createSessionCookie(body.token, {
+			expiresIn: EXPIRES_IN,
+		});
+
+		res.setHeader('set-cookie', serialize('user', cookie, options));
+		return res.status(204).end();
+	} catch (err) {
+		return res.status(400).json({error: (err as Error).message});
+	}
+};
+
 const clearSession = async (req: NextApiRequest, res: NextApiResponse) => {
 	res.setHeader('set-cookie', serialize('user', '', {maxAge: -1, path: '/'}));
 	return res.status(204).end();
@@ -68,6 +85,8 @@ const handler: NextApiHandler = async (req, res) => {
 			return await clearSession(req, res);
 		case 'POST':
 			return await createSession(req, res);
+		case 'PUT':
+			return await updateSession(req, res);
 		default: {
 			return res.status(405).end();
 		}

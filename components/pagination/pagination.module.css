@@ -6,6 +6,10 @@
   @apply px-2 py-1 outline-none border border-zinc-400 hover:bg-zinc-200;
 }
 
+.button:disabled {
+  @apply opacity-50;
+}
+
 .page {
   @apply bg-zinc-600 text-white hover:bg-zinc-600;
 }

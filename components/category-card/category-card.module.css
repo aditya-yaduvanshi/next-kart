@@ -1,0 +1,16 @@
+.card {
+  @apply rounded border hover:border-slate-400 shadow-lg bg-white;
+  @apply p-1 cursor-pointer max-h-96 relative min-w-[200px];
+}
+
+.title {
+  @apply font-semibold text-center uppercase;
+}
+
+.editButton {
+  @apply hidden;
+}
+
+.card:hover > .editButton {
+  @apply flex absolute right-1 top-1;
+}

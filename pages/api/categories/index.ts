@@ -2,6 +2,7 @@ import withAdmin from 'middlewares/withAdmin';
 import withAuth, {IRequest} from 'middlewares/withAuth';
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {db} from 'utils/admin.firebase';
+import validation from 'utils/validation';
 
 export interface ICategory {
 	name: string;
@@ -32,14 +33,19 @@ const createCategory = async (req: IRequest, res: NextApiResponse) => {
 		if (category.docs.length > 0)
 			return res.status(400).json({error: 'Category name already exists!'});
 
+		if (!validation.isImageUrl(body.image))
+			return res.status(400).json({error: 'Image should be valid image url!'});
+
 		let docRef = db.collection('categories').doc();
-		await docRef.create({
+
+		let categoryData = {
 			name: body.name.toLowerCase(),
 			image: body.image,
-		});
+		};
+		await docRef.create(categoryData);
 
 		res.setHeader('Location', docRef.id);
-		return res.status(201).end();
+		return res.status(201).json({id: docRef.id, ...categoryData});
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}
@@ -50,7 +56,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 		case 'GET':
 			return await getCategories(req, res);
 		case 'POST':
-			withAuth(withAdmin(createCategory));
+			return await withAuth(withAdmin(createCategory))(req, res);
 		default:
 			return res.status(405).end();
 	}

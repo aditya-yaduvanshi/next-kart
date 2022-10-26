@@ -1,0 +1,15 @@
+.alert {
+  @apply py-1 px-2 border rounded-md font-semibold bg-white;
+}
+
+.success {
+  @apply text-green-500 border-green-500;
+}
+
+.warning {
+  @apply text-yellow-500 border-yellow-500;
+}
+
+.error {
+  @apply text-red-500 border-red-500;
+}

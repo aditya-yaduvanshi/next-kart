@@ -16,11 +16,10 @@ const withAuth = (handler: Function) => {
 			let token = req.cookies['user'];
 			if (!token) return res.status(401).json({error: 'Token Not Provided!'});
 
-			const {uid, email, role} = await auth.verifyIdToken(token, true);
+			const {uid, email, role} = await auth.verifySessionCookie(token, true);
 
 			if (!email) return res.status(401).json({error: 'Invalid User!'});
-
-			return handler({...req, user: {uid, email, role}} as IRequest, res);
+			return await handler({...req, user: {uid, email, role}} as IRequest, res);
 		} catch (err) {
 			if((err as Error).name === 'auth/user-disabled' || (err as Error).name === 'auth/id-token-revoked')
 				res.setHeader('set-cookie', serialize('user', '', {maxAge: -1}));

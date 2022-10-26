@@ -1,6 +1,6 @@
 export default {
   isImageUrl(url: string) {
-    let image = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g;
+    let image = /^(http(s?):)\/\/.+\/.+$/g;
     return image.test(url);
   }
 }

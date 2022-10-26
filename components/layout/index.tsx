@@ -2,30 +2,33 @@ import React, {PropsWithChildren, useState} from 'react';
 import Nav from 'components/nav';
 import Sider from 'components/sider';
 import {useAuth} from 'contexts/auth';
-import SiderProvider from 'contexts/sider';
 import CartProvider from 'contexts/cart';
 import styles from './layout.module.css';
 import CartSider from 'components/cart-sider';
+import {useRouter} from 'next/router';
 
 const Layout: React.FC<PropsWithChildren> = ({children}) => {
 	const {user} = useAuth();
 	const [sider, setSider] = useState(false);
 	const [cart, setCart] = useState(false);
+	const router = useRouter();
 	return (
 		<>
 			<div className={styles.layout}>
-				<CartProvider>
-					<Nav
-						onToggle={() => setSider((current) => !current)}
-						onCart={() => setCart((current) => !current)}
-					/>
-				</CartProvider>
+				{router.pathname.startsWith('/auth') ? null : (
+					<CartProvider>
+						<Nav
+							onToggle={() => setSider((current) => !current)}
+							onCart={() => setCart((current) => !current)}
+						/>
+					</CartProvider>
+				)}
 				<main className={styles.main}>
-					{user && <Sider className={styles.sider} state={sider} />}
+					{user && <Sider className={`${styles.sider} ${sider ? '' : 'hidden'}`} />}
 					<section className={styles.page}>{children}</section>
-					{cart && (
+					{user && (
 						<CartProvider>
-							<CartSider />
+							<CartSider open={cart} />
 						</CartProvider>
 					)}
 				</main>

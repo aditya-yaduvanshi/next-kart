@@ -1,47 +1,51 @@
+import Button from 'components/button';
+import CartItem from 'components/cart-item';
 import ProductCard from 'components/product-card';
 import Spinner from 'components/spinner';
 import {useCart} from 'contexts/cart';
-import React from 'react';
+import React, { useEffect } from 'react';
+import {FaMinus, FaPlus} from 'react-icons/fa';
 
-const CartSider: React.FC = () => {
+type CartSiderProps = {
+	open: boolean;
+};
+
+const CartSider: React.FC<CartSiderProps> = ({open}) => {
 	const {
 		cart,
 		loading,
 		error,
-		increaseQuantity,
-		decreaseQuantity,
 		totalPrice,
 		totalQuantity,
+		getCartItems,
 	} = useCart();
+
+	useEffect(() => {
+		(async () => await getCartItems({page: 1, limit: 20}))();
+	},[])
+
+	console.log(cart)
 
 	return (
 		<>
-			<aside className='bg-zinc-700 z-40 absolute top-0 right-0 h-full w-1/4 text-white'>
-				<div>
-					<p>Total Items In The Cart: {totalQuantity}</p>
-					<p>Total Price Of The Cart: {totalPrice}</p>
+			<aside
+				className={`bg-zinc-700 z-40 absolute top-0 right-0 h-full ${
+					open ? 'w-1/5' : 'w-0'
+				} text-white transition-all duration-200`}
+			>
+				<div className='p-2'>
+					<div className='flex justify-between items-center'>
+						<span>Total Items In The Cart:</span>
+						<strong>{totalQuantity}</strong>
+					</div>
+					<div className='flex justify-between items-center'>
+						<span>Total Price Of The Cart:</span>{' '}
+						<strong className='text-green-500'>Rs. {totalPrice}</strong>
+					</div>
 				</div>
-				<ul>
+				<ul className='p-2'>
 					{cart.map((item) => (
-						<>
-							<li key={item.product.id}>
-								<ProductCard product={item.product} />
-								<div>
-									<p>
-										Total Price: <strong>Rs.{item.price}</strong>
-									</p>
-									<button onClick={() => decreaseQuantity(item.product.id)}>
-										-
-									</button>
-									<span>
-										Total Quantity: <strong>{item.quantity}</strong>
-									</span>
-									<button onClick={() => increaseQuantity(item.product.id)}>
-										+
-									</button>
-								</div>
-							</li>
-						</>
+						<CartItem item={item} key={item.id} />
 					))}
 					{loading && <Spinner />}
 				</ul>

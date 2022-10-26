@@ -1,6 +1,6 @@
 .button {
-  @apply flex justify-center items-center py-2 px-5 gap-2 border-transparent border;
-  @apply rounded hover:shadow-lg hover:shadow-black;
+  @apply flex justify-center items-center py-[.5em] px-[.8em] gap-2 border-transparent border;
+  @apply rounded hover:shadow-lg;
 }
 
 .primary {
@@ -9,4 +9,24 @@
 
 .danger {
   @apply bg-red-500 hover:shadow-red-300 text-white;
+}
+
+.success {
+  @apply bg-green-500 hover:shadow-green-300 text-white;
+}
+
+.warning {
+  @apply bg-yellow-500 hover:shadow-yellow-300 text-black;
+}
+
+.small {
+  @apply text-xs;
+}
+
+.medium {
+  @apply text-base;
+}
+
+.large {
+  @apply text-lg;
 }
