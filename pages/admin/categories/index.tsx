@@ -36,7 +36,7 @@ const Categories: React.FC<CategoriesProps> = (props) => {
 
 	useEffect(() => {
 		getCategories();
-	}, []);
+	}, [getCategories]);
 
 	return (
 		<>

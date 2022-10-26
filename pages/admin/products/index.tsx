@@ -27,7 +27,7 @@ const AdminProducts: React.FC<ProductListProps> = (props) => {
 
 	useEffect(() => {
 		getProducts({page, limit: 20});
-	}, [page]);
+	}, [page, getProducts]);
 
 	useEffect(() => {
 		router.push(

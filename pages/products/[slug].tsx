@@ -16,7 +16,7 @@ type ProductDetailProps = {
 const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 	const product = props.product;
 
-	if(props.error) return <></>;
+	if(!props.product) return <></>;
 
 	return (
 		<>
