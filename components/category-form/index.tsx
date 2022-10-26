@@ -25,7 +25,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({show, onClose, mode}) => {
 		if (!nameRef.current || !mode.edit || !mode.data) return;
 		nameRef.current.value = mode.data.name;
 		setImage(mode.data.image);
-	}, [nameRef.current]);
+	}, [nameRef, mode]);
 
 	const handleUpload = async (file: File) => {
 		const {url} = await uploadImage(file, 'categories');

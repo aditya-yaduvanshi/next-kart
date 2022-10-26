@@ -35,8 +35,8 @@ const ProductForm: React.FC<ProductFormProps> = ({show, onClose, mode}) => {
 	>([{id: new Date().getTime()}]);
 
 	useEffect(() => {
-		if (!categories.length) getCategories();
-	}, []);
+		getCategories();
+	}, [getCategories]);
 
 	useEffect(() => {
 		if (
@@ -59,7 +59,7 @@ const ProductForm: React.FC<ProductFormProps> = ({show, onClose, mode}) => {
 		priceRef.current.value = `${mode.data.price}`;
 		categoryRef.current.value = (mode.data.category as ICategory).name;
 		descriptionRef.current.value = mode.data.description ?? '';
-	}, [titleRef]);
+	}, [titleRef, mode]);
 
 	const {addNewProduct, loading, error, editProduct} = useProducts();
 

@@ -10,10 +10,13 @@ import React from 'react';
 
 type ProductDetailProps = {
 	product: IProductDetail;
+	error?: string;
 };
 
 const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 	const product = props.product;
+
+	if(props.error) return <></>;
 
 	return (
 		<>
@@ -90,8 +93,17 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
 	const res = await fetch(
 		`${PRODUCTS_URL}/${(params?.slug as string)?.split('_')[1]}`
 	);
-	const product = await res.json();
+	let result;
+	if(res.status === 200){
+		result = {
+			product: await res.json(),
+		}
+	} else if(res.status === 400){
+		result = {
+			error: await res.json(),
+		}
+	}
 	return {
-		props: {product},
+		props: {...result},
 	};
 };
