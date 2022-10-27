@@ -15,7 +15,7 @@ const CartSider: React.FC = () => {
 
 	useEffect(() => {
 		getCartItems({page, limit: LIMIT});
-	}, [page, LIMIT]);
+	}, [page, getCartItems]);
 
 	return (
 		<>
