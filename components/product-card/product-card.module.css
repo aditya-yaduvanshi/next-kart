@@ -1,5 +1,5 @@
 .card {
-  @apply rounded border hover:border-slate-400 shadow-lg bg-white;
+  @apply rounded border hover:border-zinc-400 shadow-lg bg-white;
   @apply p-1 cursor-pointer max-h-96 min-w-[225px];
 }
 

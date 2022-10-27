@@ -24,8 +24,8 @@ export interface ICartContext {
 	totalQuantity: number;
 	loading: boolean;
 	error: string;
-	increaseQuantity: (id: ProductCardProps['product']['id']) => Promise<void>;
-	decreaseQuantity: (id: ProductCardProps['product']['id']) => Promise<void>;
+	increaseQuantity: (item: ICartItem) => Promise<void>;
+	decreaseQuantity: (item: ICartItem) => Promise<void>;
 	getCartItems: (query: IQuery) => Promise<void>;
 	addToCart: (id: ProductCardProps['product']['id']) => Promise<void>;
 	removeFromCart: (id: ProductCardProps['product']['id']) => Promise<void>;
@@ -53,26 +53,21 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 	}, [error]);
 
 	useEffect(() => {
-		let [totalPrice, totalQuantity] = cart.reduce(
-			([price, quantity], item) => {
+		let totalPrice = cart.reduce((price, item) => {
 				price += item.price;
-				quantity += item.quantity;
-				return [price, quantity];
-			},
-			[0, 0]
-		);
+				return price;
+			}, 0),
+			totalQuantity = cart.length;
 
 		setTotalPrice(totalPrice);
 		setTotalQuantity(totalQuantity);
 	}, [cart]);
 
 	const increaseQuantity: ICartContext['increaseQuantity'] = useCallback(
-		async (id) => {
-			let item = cart.find((item) => item.id === id);
-			if (!item) return;
+		async (item) => {
 			setLoading(true);
 			try {
-				const res = await fetch(`${CARTS_URL}/${id}`, {
+				const res = await fetch(`${CARTS_URL}/${item.id}`, {
 					method: 'PUT',
 					body: JSON.stringify({
 						quantity: item.quantity + 1,
@@ -85,7 +80,7 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 					case 200: {
 						const result = await res.json();
 						setCart((current) => {
-							let index = current.findIndex((i) => i.id === id);
+							let index = current.findIndex((i) => i.id === item.id);
 							if (index < 0) {
 							} else {
 								current[index].price = result.price;
@@ -119,12 +114,10 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 	);
 
 	const decreaseQuantity: ICartContext['decreaseQuantity'] = useCallback(
-		async (id) => {
-			let item = cart.find((item) => item.id === id);
-			if (!item) return;
+		async (item) => {
 			setLoading(true);
 			try {
-				const res = await fetch(`${CARTS_URL}/${id}`, {
+				const res = await fetch(`${CARTS_URL}/${item.id}`, {
 					method: 'PUT',
 					body: JSON.stringify({
 						quantity: item.quantity - 1,
@@ -137,7 +130,7 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 					case 200: {
 						const result = await res.json();
 						setCart((current) => {
-							let index = current.findIndex((i) => i.id === id);
+							let index = current.findIndex((i) => i.id === item.id);
 							if (index < 0) {
 							} else {
 								current[index].price = result.price;
@@ -178,7 +171,16 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 				switch (res.status) {
 					case 200: {
 						const result = (await res.json()) as ICartContext['cart'];
-						setCart(result);
+						setCart((current) => {
+							return current.reduce((prev, item) => {
+								if(prev.find(cartItem => cartItem.id === item.id))
+									return prev;
+								else {
+									prev.push(item);
+									return prev;
+								}
+							}, result)
+						});
 						setLoading(false);
 						return;
 					}
@@ -257,12 +259,14 @@ const CartProvider: React.FC<PropsWithChildren> = ({children}) => {
 			});
 			switch (res.status) {
 				case 204: {
-					setCart((current) => current.filter((item) => item.id === id));
+					setCart((current) => current.filter((item) => item.id !== id));
 					setLoading(false);
 					return;
 				}
 				case 400: {
 					const result = await res.json();
+					if (result.error === 'Item did not exists!')
+						setCart((current) => current.filter((item) => item.id !== id));
 					setError(result.error);
 					setLoading(false);
 					return;

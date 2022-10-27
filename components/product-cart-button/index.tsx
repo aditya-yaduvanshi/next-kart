@@ -3,27 +3,29 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import {useCart} from 'contexts/cart';
 import {IProduct} from 'contexts/products';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 
 type ProductCartButtonProps = {
 	productId: IProduct['id'];
 };
 
 const ProductCartButton: React.FC<ProductCartButtonProps> = ({productId}) => {
-	const {cart, addToCart, removeFromCart, loading, error} = useCart();
-	const incart = cart.find((item) => item.product.id === productId)
-		? true
-		: false;
+	const {cart, addToCart, removeFromCart, loading, error, getCartItems} = useCart();
+	const incart = cart.find((item) => item.product.id === productId);
 
-	const handleCart = useCallback(async () => {
-		if (incart) await removeFromCart(productId);
+	const handleCart = async () => {
+		if (incart) await removeFromCart(incart.id);
 		else await addToCart(productId);
-	}, [addToCart, removeFromCart, productId, incart]);
+	};
+
+	useEffect(() => {
+		getCartItems({page: 1, limit: 10});
+	},[getCartItems]);
 
 	return (
 		<>
 			<Button disabled={loading} onClick={() => handleCart()} variant='primary'>
-				{loading ? <Spinner className='bg-transparent text-[1em]' /> : incart ? 'Remove From Cart' : 'Add To Cart'}
+				{loading ? <Spinner className='bg-transparent text-[1em] w-full h-full' size='24' /> : incart ? 'Remove From Cart' : 'Add To Cart'}
 			</Button>
 			{error ? <Alert type='error'>{error}</Alert> : null}
 		</>

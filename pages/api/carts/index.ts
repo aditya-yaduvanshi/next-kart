@@ -36,9 +36,28 @@ const getItems = async (req: IRequest, res: NextApiResponse) => {
 			.offset(offset)
 			.limit(limit)
 			.get();
-		return res
-			.status(200)
-			.json(items.docs.map((doc) => ({id: doc.id, ...doc.data()})));
+
+		const cartItems = await Promise.all(
+			items.docs.map(async (cartItem) => {
+				let productRef = cartItem.get(
+					'product'
+				) as FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>;
+				let product = await productRef.get();
+				let item = {
+					id: cartItem.id,
+					...cartItem.data(),
+					product: {
+						id: product.id,
+						thumbnail: product.get('thumbnail'),
+						title: product.get('title'),
+						slug: product.get('slug'),
+						price: product.get('price'),
+					},
+				};
+				return item;
+			})
+		);
+		return res.status(200).json(cartItems);
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}
@@ -62,6 +81,11 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 				.status(400)
 				.json({error: 'Quantity Should Be A Positive Number!'});
 
+		let items = await db.collection('carts').where('user', '==', user.uid).get();
+		
+		if(items.docs.find(item => item.get('product').id === product.id))
+			return res.status(400).json({error: 'Item already exists!'});
+
 		let itemRef = db.collection('carts').doc();
 
 		let item = {
@@ -78,8 +102,18 @@ const addItem = async (req: IRequest, res: NextApiResponse) => {
 		});
 
 		res.setHeader('Location', itemRef.id);
-		let data = {id: itemRef.id, ...item, product: product.id, price}
-		console.log('cart api', data);
+		let data = {
+			id: itemRef.id,
+			...item,
+			product: {
+				id: product.id,
+				slug: product.get('slug'),
+				thumbnail: product.get('thumbnail'),
+				price: product.get('price'),
+				title: product.get('title'),
+			},
+			price,
+		};
 		return res.status(201).json(data);
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});

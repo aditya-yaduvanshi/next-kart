@@ -8,23 +8,27 @@ export interface ProductCardProps {
 	product: IProduct;
 	className?: string;
 	linkClassName?: string;
+	thumbnailWidth?: string;
+	thumbnailHeight?: string,
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
 	product: {thumbnail, title, price, slug},
 	className,
 	linkClassName,
+	thumbnailWidth = '180',
+	thumbnailHeight = '180',
 }) => {
 	return (
 		<>
-			<article className={`${styles.card} ${className}`}>
+			<article className={`${styles.card} ${className ?? ''}`}>
 				<Link href={`/products/${slug}`}>
-					<a className={`${styles.link} ${linkClassName}`}>
+					<a className={`${styles.link} ${linkClassName ?? ''}`}>
 						<Img
 							src={thumbnail ?? '/no-image.jpg'}
 							alt='product'
-							width='180'
-							height='180'
+							width={thumbnailWidth}
+							height={thumbnailHeight}
 						/>
 						<div className={styles.body}>
 							<h3>{title.length > 25 ? title.slice(0, 25) + '...' : title}</h3>

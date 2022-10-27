@@ -64,11 +64,14 @@ const deleteItem = async (req: IRequest, res: NextApiResponse) => {
 		let itemRef = db.collection('carts').doc(id);
 		let item = await itemRef.get();
 
+		if(!item.exists) 
+			return res.status(400).json({error: 'Item did not exists!'});
+
 		if(item.get('user') !== user.uid)
 			return res.status(403).json({error: 'This item does not belongs to you!'});
 
 		await itemRef.delete();
-		return res.status(204);
+		return res.status(204).end();
 	} catch (err) {
 		return res.status(400).json({error: (err as Error).message});
 	}

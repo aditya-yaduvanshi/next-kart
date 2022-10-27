@@ -1,12 +1,15 @@
+import Button from 'components/button';
 import CategoryCard from 'components/category-card';
 import Img from 'components/img';
 import ProductCartButton from 'components/product-cart-button';
+import ProductForm from 'components/product-form';
 import {PRODUCTS_URL} from 'constants/urls';
+import { useAuth } from 'contexts/auth';
 import CartProvider from 'contexts/cart';
-import {ICategory} from 'contexts/categories';
-import {IProduct, IProductDetail} from 'contexts/products';
+import CategoryProvider, {ICategory} from 'contexts/categories';
+import ProductProvider, {IProduct, IProductDetail} from 'contexts/products';
 import {GetStaticProps, NextPage} from 'next';
-import React from 'react';
+import React, { useState } from 'react';
 
 type ProductDetailProps = {
 	product: IProductDetail;
@@ -15,6 +18,8 @@ type ProductDetailProps = {
 
 const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 	const product = props.product;
+	const [show, setShow] = useState(false);
+	const {user} = useAuth();
 
 	if (!props.product) return <></>;
 
@@ -58,7 +63,10 @@ const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 								<CategoryCard category={product.category as ICategory} />
 							</div>
 						</div>
-						<div>
+						<div className='flex gap-2 items-center'>
+							{user && user.role === 'admin' && (
+								<Button onClick={() => setShow(true)} variant='primary'>Edit Product</Button>
+							)}
 							<CartProvider>
 								<ProductCartButton productId={product.id} />
 							</CartProvider>
@@ -72,6 +80,13 @@ const ProductDetail: NextPage<ProductDetailProps> = (props) => {
 					</div>
 				</section>
 			</div>
+			{user && user.role === 'admin' && (
+			<ProductProvider>
+				<CategoryProvider>
+					<ProductForm show={show} onClose={() => setShow(false)} mode={{edit: true, data: product}} />
+				</CategoryProvider>
+			</ProductProvider>
+			)}
 		</>
 	);
 };
